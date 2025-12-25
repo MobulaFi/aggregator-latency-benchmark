@@ -212,8 +212,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 6,
+        "w": 24,
         "x": 0,
         "y": 10
       },
@@ -249,66 +249,6 @@
       ],
       "title": "Latest REST API Latency (P50) by Aggregator",
       "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            }
-          },
-          "mappings": []
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 10
-      },
-      "id": 3,
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "values": [
-            "value",
-            "percent"
-          ]
-        },
-        "pieType": "pie",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "sum(increase(rest_api_status_codes_total[1h])) by (aggregator, status_code)",
-          "legendFormat": "{{aggregator}} - {{status_code}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "REST API Status Codes (Last Hour)",
-      "type": "piechart"
     },
     {
       "datasource": {
@@ -375,7 +315,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 16
       },
       "id": 4,
       "options": {
@@ -487,7 +427,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 24
       },
       "id": 5,
       "options": {
