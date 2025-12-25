@@ -18,6 +18,11 @@ var (
 
 	// Pool discovery latency metric
 	poolDiscoveryLatency *prometheus.GaugeVec
+
+	// REST API latency metrics
+	restAPILatency       *prometheus.HistogramVec
+	restAPIErrors        *prometheus.CounterVec
+	restAPIStatusCodes   *prometheus.CounterVec
 )
 
 func init() {
@@ -38,6 +43,37 @@ func init() {
 		[]string{"aggregator", "chain"},
 	)
 	prometheus.MustRegister(poolDiscoveryLatency)
+
+	// REST API latency histogram with buckets optimized for API response times
+	restAPILatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "rest_api_latency_milliseconds",
+			Help:    "REST API response latency in milliseconds",
+			Buckets: []float64{50, 100, 200, 500, 1000, 2000, 5000, 10000},
+		},
+		[]string{"aggregator", "endpoint", "chain"},
+	)
+	prometheus.MustRegister(restAPILatency)
+
+	// REST API errors counter
+	restAPIErrors = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "rest_api_errors_total",
+			Help: "Total number of REST API errors",
+		},
+		[]string{"aggregator", "endpoint", "chain", "error_type"},
+	)
+	prometheus.MustRegister(restAPIErrors)
+
+	// REST API status codes counter
+	restAPIStatusCodes = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "rest_api_status_codes_total",
+			Help: "Total count of REST API responses by status code",
+		},
+		[]string{"aggregator", "endpoint", "chain", "status_code"},
+	)
+	prometheus.MustRegister(restAPIStatusCodes)
 }
 
 type AggregatorMetrics struct {
@@ -88,6 +124,20 @@ func RecordPoolDiscoveryLatency(aggregator string, chain string, latencyMs float
 	}
 
 	poolDiscoveryLatency.WithLabelValues(aggregator, chain).Set(latencyMs)
+}
+
+// RecordRESTLatency records the latency of a REST API call
+func RecordRESTLatency(aggregator string, endpoint string, chain string, latencyMs float64, statusCode int) {
+	// Record latency in histogram
+	restAPILatency.WithLabelValues(aggregator, endpoint, chain).Observe(latencyMs)
+
+	// Record status code
+	restAPIStatusCodes.WithLabelValues(aggregator, endpoint, chain, fmt.Sprintf("%d", statusCode)).Inc()
+}
+
+// RecordRESTError records a REST API error
+func RecordRESTError(aggregator string, endpoint string, chain string, errorType string) {
+	restAPIErrors.WithLabelValues(aggregator, endpoint, chain, errorType).Inc()
 }
 
 func StartMetricsServer(addr string) error {

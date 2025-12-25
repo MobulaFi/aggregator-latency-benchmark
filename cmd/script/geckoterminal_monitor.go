@@ -123,6 +123,9 @@ func handleCoinGeckoWebSocketMessages(conn *websocket.Conn, config *Config) {
 
 		receiveTime := time.Now().UTC()
 
+		// DEBUG: Print raw message to verify structure
+		fmt.Printf("\n[DEBUG COINGECKO] Raw message: %s\n", string(messageBytes))
+
 		var trade TradeData
 		if err := json.Unmarshal(messageBytes, &trade); err != nil {
 			continue
@@ -152,9 +155,10 @@ func handleCoinGeckoWebSocketMessages(conn *websocket.Conn, config *Config) {
 			tradeType = "sell"
 		}
 
-		fmt.Printf("[COINGECKO][%s][%s] New trade! Tx: %s... | Type: %s | Volume: $%.2f | Trade time: %s | Lag: %dms\n",
+		fmt.Printf("[COINGECKO][%s][%s] New trade! Tx FULL: %s | Tx: %s... | Type: %s | Volume: $%.2f | Trade time: %s | Lag: %dms\n",
 			timestamp,
 			chainName,
+			trade.Tx,
 			txHashShort,
 			tradeType,
 			trade.Vo,

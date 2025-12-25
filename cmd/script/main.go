@@ -66,6 +66,20 @@ func main() {
 		runMobulaPulseMonitor(config, stopChan)
 	}()
 
+	// Mobula REST API monitor
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runMobulaRESTMonitor(config, stopChan)
+	}()
+
+	// Codex REST API monitor
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runCodexRESTMonitor(config, stopChan)
+	}()
+
 	<-sigChan
 	fmt.Println("\n\nShutting down monitors...")
 	close(stopChan)

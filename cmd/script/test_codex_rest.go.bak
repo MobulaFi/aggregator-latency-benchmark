@@ -1,0 +1,68 @@
+// +build ignore
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"time"
+)
+
+// Simple test program to verify Codex REST monitor works
+func main() {
+	fmt.Println("=== Testing Codex REST Monitor ===")
+	fmt.Println()
+
+	// Load config
+	config, err := loadEnv()
+	if err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+		os.Exit(1)
+	}
+
+	if config.CodexAPIKey == "" {
+		fmt.Println("ERROR: CODEX_API_KEY not set in .env file")
+		os.Exit(1)
+	}
+
+	fmt.Printf("✓ API Key loaded: %s...%s\n", config.CodexAPIKey[:8], config.CodexAPIKey[len(config.CodexAPIKey)-4:])
+	fmt.Println()
+
+	// Test each chain
+	fmt.Println("Testing GraphQL API calls for each chain:")
+	fmt.Println("─────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	for _, chain := range codexRESTChains {
+		fmt.Printf("Testing %s (networkID: %d)...\n", chain.chainName, chain.networkID)
+		fmt.Printf("  Pool address: %s\n", chain.poolAddress)
+
+		latencyMs, statusCode, err := callCodexGraphQLAPI(
+			config.CodexAPIKey,
+			chain.poolAddress,
+			chain.networkID,
+			chain.chainName,
+		)
+
+		if err != nil {
+			fmt.Printf("  ✗ FAILED | Latency: %.0fms | Status: %d\n", latencyMs, statusCode)
+			fmt.Printf("  Error: %v\n", err)
+		} else {
+			emoji := "✓"
+			if statusCode >= 400 {
+				emoji = "✗"
+			} else if statusCode >= 300 {
+				emoji = "⚠"
+			}
+
+			fmt.Printf("  %s SUCCESS | Latency: %.0fms | Status: %d\n", emoji, latencyMs, statusCode)
+		}
+		fmt.Println()
+
+		// Small delay between requests
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	fmt.Println("─────────────────────────────────────────────────────────")
+	fmt.Println("Test complete!")
+}

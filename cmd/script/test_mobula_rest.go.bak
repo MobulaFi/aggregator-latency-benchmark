@@ -1,0 +1,68 @@
+// +build ignore
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"time"
+)
+
+// Simple test program to verify Mobula REST monitor works
+func main() {
+	fmt.Println("=== Testing Mobula REST Monitor ===")
+	fmt.Println()
+
+	// Load config
+	config, err := loadEnv()
+	if err != nil {
+		fmt.Printf("Error loading config: %v\n", err)
+		os.Exit(1)
+	}
+
+	if config.MobulaAPIKey == "" {
+		fmt.Println("ERROR: MOBULA_API_KEY not set in .env file")
+		os.Exit(1)
+	}
+
+	fmt.Printf("✓ API Key loaded: %s...%s\n", config.MobulaAPIKey[:8], config.MobulaAPIKey[len(config.MobulaAPIKey)-4:])
+	fmt.Println()
+
+	// Test each chain
+	fmt.Println("Testing REST API calls for each chain:")
+	fmt.Println("─────────────────────────────────────────────────────────")
+	fmt.Println()
+
+	for _, chain := range mobulaRESTChains {
+		fmt.Printf("Testing %s (blockchain: %s)...\n", chain.chainName, chain.blockchainID)
+		fmt.Printf("  Pool address: %s\n", chain.poolAddress)
+
+		latencyMs, statusCode, err := callMobulaMarketDataAPI(
+			config.MobulaAPIKey,
+			chain.poolAddress,
+			chain.blockchainID,
+			chain.chainName,
+		)
+
+		if err != nil {
+			fmt.Printf("  ✗ FAILED | Latency: %.0fms | Status: %d\n", latencyMs, statusCode)
+			fmt.Printf("  Error: %v\n", err)
+		} else {
+			emoji := "✓"
+			if statusCode >= 400 {
+				emoji = "✗"
+			} else if statusCode >= 300 {
+				emoji = "⚠"
+			}
+
+			fmt.Printf("  %s SUCCESS | Latency: %.0fms | Status: %d\n", emoji, latencyMs, statusCode)
+		}
+		fmt.Println()
+
+		// Small delay between requests
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	fmt.Println("─────────────────────────────────────────────────────────")
+	fmt.Println("Test complete!")
+}
