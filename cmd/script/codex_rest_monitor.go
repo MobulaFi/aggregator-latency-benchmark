@@ -45,22 +45,41 @@ func callCodexGraphQLAPI(apiKey string, poolAddress string, networkID int, chain
 		Timeout: 10 * time.Second,
 	}
 
-	// Build GraphQL query - ultra simple introspection query
-	// Just to measure API latency, we don't care about actual data
+	// Build GraphQL query - get pool bar data (OHLCV) for realistic latency measurement
+	// This fetches actual market data that isn't cached, giving us real API performance
+	now := time.Now().Unix()
+	from := now - 3600 // Last hour
+
 	query := `
-		{
-			__schema {
-				queryType {
-					name
-				}
+		query GetPoolBars($address: String!, $networkId: Int!, $from: Int!, $to: Int!) {
+			getBars(
+				symbol: ""
+				address: $address
+				networkId: $networkId
+				resolution: "1"
+				from: $from
+				to: $to
+				currencyCode: "USD"
+			) {
+				t
+				o
+				h
+				l
+				c
+				v
 			}
 		}
 	`
 
-	// Build request body
+	// Build request body with variables
 	reqBody := CodexGraphQLRequest{
-		Query:     query,
-		Variables: map[string]interface{}{},
+		Query: query,
+		Variables: map[string]interface{}{
+			"address":   poolAddress,
+			"networkId": networkID,
+			"from":      int(from),
+			"to":        int(now),
+		},
 	}
 
 	bodyBytes, err := json.Marshal(reqBody)
