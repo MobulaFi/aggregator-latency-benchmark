@@ -18,10 +18,11 @@ var coinGeckoChains = []struct {
 	chainName   string
 	poolAddress string
 }{
-	{"solana", "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},
-	{"bsc", "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},
-	{"base", "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},
-	{"monad", "monad", "0x659bD0BC4167BA25c62E05656F78043E7eD4a9da"},  // Monad mainnet - chain_id 143
+	{"solana", "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},             // SOL/USDC
+	{"eth", "ethereum", "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"},                // WETH/USDC Uniswap V3
+	{"base", "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},                   // WETH/USDC Base
+	{"bsc", "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},                     // WBNB/BUSD PancakeSwap
+	{"arbitrum", "arbitrum", "0xc6962004f452be9203591991d15f6b388e09e8d0"},           // WETH/USDC Arbitrum
 }
 
 type WSCommand struct {

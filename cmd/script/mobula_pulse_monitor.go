@@ -13,12 +13,13 @@ const (
 	mobulaPulseWSURL = "wss://pulse-v2-api.mobula.io"
 )
 
-// Chains to monitor for new pools
+// Chains to monitor for new pools - aligned with all monitors
 var pulseChains = []string{
-	"solana:solana",
-	"evm:56",   // BNB
-	"evm:8453", // Base
-	"evm:143",  // Monad
+	"solana:solana", // Solana
+	"evm:1",         // Ethereum
+	"evm:8453",      // Base
+	"evm:56",        // BNB
+	"evm:42161",     // Arbitrum
 }
 
 type PulseSubscribeMessage struct {

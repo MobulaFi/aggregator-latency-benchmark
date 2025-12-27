@@ -19,10 +19,11 @@ var mobulaChains = []struct {
 	chainName    string
 	poolAddress  string
 }{
-	{"solana", 1399811149, "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},
-	{"evm:56", 56, "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},
-	{"evm:8453", 8453, "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},
-	{"evm:143", 143, "monad", "0x659bD0BC4167BA25c62E05656F78043E7eD4a9da"},  // Monad mainnet - chain_id 143
+	{"solana", 1399811149, "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},      // SOL/USDC
+	{"evm:1", 1, "ethereum", "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"},                // WETH/USDC Uniswap V3
+	{"evm:8453", 8453, "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},              // WETH/USDC Base
+	{"evm:56", 56, "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},                   // WBNB/BUSD PancakeSwap
+	{"evm:42161", 42161, "arbitrum", "0xc6962004f452be9203591991d15f6b388e09e8d0"},        // WETH/USDC Arbitrum
 }
 
 type MobulaSubscribeMessage struct {

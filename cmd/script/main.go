@@ -80,6 +80,13 @@ func main() {
 		runCodexRESTMonitor(config, stopChan)
 	}()
 
+	// Quote API latency monitor (Jupiter, Li.Fi, 1inch, KyberSwap)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runQuoteAPIMonitor(config, stopChan)
+	}()
+
 	<-sigChan
 	fmt.Println("\n\nShutting down monitors...")
 	close(stopChan)

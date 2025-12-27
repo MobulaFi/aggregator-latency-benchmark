@@ -14,16 +14,17 @@ const (
 	codexRESTBaseURL = "https://graph.codex.io/graphql"
 )
 
-// Chains for REST monitoring
+// Chains for REST monitoring - aligned with all monitors
 var codexRESTChains = []struct {
 	networkID   int
 	chainName   string
 	poolAddress string
 }{
-	{1399811149, "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},
-	{56, "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},
-	{8453, "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},
-	{143, "monad", "0x659bD0BC4167BA25c62E05656F78043E7eD4a9da"},
+	{1399811149, "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"}, // SOL/USDC Raydium
+	{1, "ethereum", "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"},           // WETH/USDC Uniswap V3
+	{8453, "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},            // WETH/USDC Base
+	{56, "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},               // WBNB/BUSD PancakeSwap
+	{42161, "arbitrum", "0xc6962004f452be9203591991d15f6b388e09e8d0"},       // WETH/USDC Uniswap V3 Arbitrum
 }
 
 type CodexGraphQLRequest struct {
@@ -45,28 +46,18 @@ func callCodexGraphQLAPI(apiKey string, poolAddress string, networkID int, chain
 		Timeout: 10 * time.Second,
 	}
 
-	// Build GraphQL query - get pool bar data (OHLCV) for realistic latency measurement
-	// This fetches actual market data that isn't cached, giving us real API performance
-	now := time.Now().Unix()
-	from := now - 3600 // Last hour
-
+	// Build GraphQL query - filterPairs is reliable and works for all chains
+	// This query filters pairs by network and returns one result to measure latency
 	query := `
-		query GetPoolBars($address: String!, $networkId: Int!, $from: Int!, $to: Int!) {
-			getBars(
-				symbol: ""
-				address: $address
-				networkId: $networkId
-				resolution: "1"
-				from: $from
-				to: $to
-				currencyCode: "USD"
-			) {
-				t
-				o
-				h
-				l
-				c
-				v
+		query FilterPairs($networkId: [Int!]) {
+			filterPairs(filters: { network: $networkId }, limit: 1) {
+				results {
+					pair {
+						address
+						token0
+						token1
+					}
+				}
 			}
 		}
 	`
@@ -75,10 +66,7 @@ func callCodexGraphQLAPI(apiKey string, poolAddress string, networkID int, chain
 	reqBody := CodexGraphQLRequest{
 		Query: query,
 		Variables: map[string]interface{}{
-			"address":   poolAddress,
-			"networkId": networkID,
-			"from":      int(from),
-			"to":        int(now),
+			"networkId": []int{networkID},
 		},
 	}
 

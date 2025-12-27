@@ -13,17 +13,18 @@ const (
 	mobulaRESTBaseURL = "https://api.mobula.io"
 )
 
-// Chains for REST monitoring - using pool addresses for history/pair endpoint
+// Chains for REST monitoring - aligned with all monitors
 var mobulaRESTChains = []struct {
 	blockchain   string
 	blockchainID string
 	chainName    string
 	poolAddress  string
 }{
-	{"Solana", "solana", "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},
-	{"BSC", "56", "bnb", "0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16"},
-	{"Base", "base", "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},
-	{"Monad", "monad", "monad", "0x659bD0BC4167BA25c62E05656F78043E7eD4a9da"},
+	{"Solana", "solana", "solana", "7qbRF6YsyGuLUVs6Y1q64bdVrfe4ZcUUz1JRdoVNUJnm"},      // SOL/USDC
+	{"Ethereum", "1", "ethereum", "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"},          // WETH/USDC Uniswap V3
+	{"Base", "8453", "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},              // WETH/USDC Base
+	{"BSC", "56", "bnb", "0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16"},                  // WBNB/BUSD PancakeSwap
+	{"Arbitrum", "42161", "arbitrum", "0xc6962004f452be9203591991d15f6b388e09e8d0"},     // WETH/USDC Arbitrum
 }
 
 type MobulaMarketDataResponse struct {

@@ -23,6 +23,11 @@ var (
 	restAPILatency       *prometheus.HistogramVec
 	restAPIErrors        *prometheus.CounterVec
 	restAPIStatusCodes   *prometheus.CounterVec
+
+	// Quote API latency metrics
+	quoteAPILatency     *prometheus.HistogramVec
+	quoteAPIErrors      *prometheus.CounterVec
+	quoteAPIStatusCodes *prometheus.CounterVec
 )
 
 func init() {
@@ -74,6 +79,37 @@ func init() {
 		[]string{"aggregator", "endpoint", "chain", "status_code"},
 	)
 	prometheus.MustRegister(restAPIStatusCodes)
+
+	// Quote API latency histogram
+	quoteAPILatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "quote_api_latency_milliseconds",
+			Help:    "Quote API response latency in milliseconds",
+			Buckets: []float64{50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000},
+		},
+		[]string{"provider", "chain"},
+	)
+	prometheus.MustRegister(quoteAPILatency)
+
+	// Quote API errors counter
+	quoteAPIErrors = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "quote_api_errors_total",
+			Help: "Total number of Quote API errors",
+		},
+		[]string{"provider", "chain", "error_type"},
+	)
+	prometheus.MustRegister(quoteAPIErrors)
+
+	// Quote API status codes counter
+	quoteAPIStatusCodes = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "quote_api_status_codes_total",
+			Help: "Total count of Quote API responses by status code",
+		},
+		[]string{"provider", "chain", "status_code"},
+	)
+	prometheus.MustRegister(quoteAPIStatusCodes)
 }
 
 type AggregatorMetrics struct {
@@ -138,6 +174,20 @@ func RecordRESTLatency(aggregator string, endpoint string, chain string, latency
 // RecordRESTError records a REST API error
 func RecordRESTError(aggregator string, endpoint string, chain string, errorType string) {
 	restAPIErrors.WithLabelValues(aggregator, endpoint, chain, errorType).Inc()
+}
+
+// RecordQuoteAPILatency records the latency of a Quote API call
+func RecordQuoteAPILatency(provider string, chain string, latencyMs float64, statusCode int) {
+	// Record latency in histogram
+	quoteAPILatency.WithLabelValues(provider, chain).Observe(latencyMs)
+
+	// Record status code
+	quoteAPIStatusCodes.WithLabelValues(provider, chain, fmt.Sprintf("%d", statusCode)).Inc()
+}
+
+// RecordQuoteAPIError records a Quote API error
+func RecordQuoteAPIError(provider string, chain string, errorType string) {
+	quoteAPIErrors.WithLabelValues(provider, chain, errorType).Inc()
 }
 
 func StartMetricsServer(addr string) error {
