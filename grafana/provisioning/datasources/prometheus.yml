@@ -4,7 +4,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: proxy
-    url: ${PROMETHEUS_URL:-http://prometheus:9090}
+    url: https://prometheus-production-da44.up.railway.app
     uid: prometheus
     isDefault: true
     editable: false
