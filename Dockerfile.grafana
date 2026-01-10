@@ -1,12 +1,24 @@
 FROM grafana/grafana:latest
 
+USER root
+
 # Copy provisioning configs
 COPY monitoring/grafana/provisioning /etc/grafana/provisioning
 COPY monitoring/grafana/dashboards /var/lib/grafana/dashboards
+
+# Fix permissions
+RUN chown -R grafana:root /etc/grafana/provisioning && \
+    chown -R grafana:root /var/lib/grafana/dashboards && \
+    chmod -R 755 /etc/grafana/provisioning && \
+    chmod -R 755 /var/lib/grafana/dashboards
+
+USER grafana
 
 # Environment variables
 ENV GF_AUTH_ANONYMOUS_ENABLED=true
 ENV GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
 ENV GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/aggregator_latency.json
 ENV GF_INSTALL_PLUGINS=grafana-clock-panel
+ENV GF_SERVER_HTTP_PORT=3000
 
+EXPOSE 3000
