@@ -5,7 +5,7 @@ global:
 scrape_configs:
   - job_name: 'latency_monitor'
     static_configs:
-      - targets: ['host.docker.internal:2112']
+      - targets: ['monitor:2112']
         labels:
           app: 'aggregator_latency_monitor'
           environment: 'production'

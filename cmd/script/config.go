@@ -16,7 +16,7 @@ type Config struct {
 func loadEnv() (*Config, error) {
 	config := &Config{}
 
-	// First, try to load from environment variables (for production/Fly.io)
+	// First, try to load from environment variables (for production/Railway)
 	config.CoinGeckoAPIKey = os.Getenv("COINGECKO_API_KEY")
 	config.MobulaAPIKey = os.Getenv("MOBULA_API_KEY")
 	config.CodexAPIKey = os.Getenv("CODEX_API_KEY")

@@ -4,7 +4,7 @@
 
 Real-time monitoring tool for tracking blockchain data indexation latency across multiple aggregators.
 
-**[Live Dashboard](https://aggregator-latency-track.fly.dev/)**
+**[Live Dashboard](https://aggregator-latency-benchmark.up.railway.app/)**
 
 </div>
 
@@ -17,7 +17,7 @@ The monitor connects to aggregator WebSocket feeds and measures latency by compa
 Metrics are exposed via Prometheus and visualized in Grafana dashboards.
 
 **Tracked Aggregators**: CoinGecko, Mobula, Codex
-**Supported Chains**: Solana, BNB Chain, Base, Monad
+**Supported Chains**: Solana, Ethereum, BNB Chain, Base, Arbitrum
 
 ## Quick Start
 
@@ -27,26 +27,20 @@ Metrics are exposed via Prometheus and visualized in Grafana dashboards.
 - Docker & Docker Compose
 - API keys from aggregators you want to track
 
-### Run
+### Run Locally
 
 ```bash
 # Clone the repository
-git clone <repo-url>
-cd aggregator_latency_track
+git clone git@github.com:MobulaFi/aggregator-latency-benchmark.git
+cd aggregator-latency-benchmark
 
-# Create .env file with your API keys (see Environment Variables below)
+# Create .env file with your API keys
 cp .env.example .env
 # Edit .env with your keys
 
-# Start everything
-make run
+# Start everything with Docker Compose
+docker-compose up -d
 ```
-
-This command will:
-1. Build the Go binary
-2. Start Prometheus and Grafana
-3. Launch the latency monitor
-4. Display metrics in real-time
 
 ### Access Dashboards
 
@@ -54,37 +48,51 @@ This command will:
 - **Prometheus**: http://localhost:9090
 - **Metrics**: http://localhost:2112/metrics
 
+## Deploy to Railway
+
+### One-Click Deploy
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/aggregator-latency-benchmark)
+
+### Manual Deploy
+
+1. Create a new project on [Railway](https://railway.app)
+2. Add services from GitHub repo `MobulaFi/aggregator-latency-benchmark`:
+   - **Monitor** (uses Dockerfile)
+   - **Prometheus** (Docker image: `prom/prometheus`)
+   - **Grafana** (Docker image: `grafana/grafana`)
+
+3. Set environment variables for the Monitor service:
+   ```
+   COINGECKO_API_KEY=your_coingecko_api_key
+   MOBULA_API_KEY=your_mobula_api_key
+   CODEX_API_KEY=your_codex_api_key
+   ```
+
+4. Set environment variables for Grafana:
+   ```
+   GF_SECURITY_ADMIN_PASSWORD=your_secure_password
+   GF_AUTH_ANONYMOUS_ENABLED=true
+   GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+   ```
+
+5. Configure networking between services (Railway handles this automatically with internal DNS)
+
 ## Environment Variables
 
-Create a `.env` file in the root directory:
-
-```bash
-# CoinGecko API Key
-COINGECKO_API_KEY=your_coingecko_api_key
-
-# Mobula API Key
-MOBULA_API_KEY=your_mobula_api_key
-
-# Codex API Key
-CODEX_API_KEY=your_codex_api_key
-```
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `COINGECKO_API_KEY` | CoinGecko Pro API key | Optional |
+| `MOBULA_API_KEY` | Mobula API key | Optional |
+| `CODEX_API_KEY` | Codex API key | Optional |
+| `GF_SECURITY_ADMIN_PASSWORD` | Grafana admin password | Recommended |
 
 If an API key is not provided, that specific monitor will be skipped.
-
-## Available Commands
-
-| Command | Description |
-|---------|-------------|
-| `make run` | Build + start services + launch monitor |
-| `make build` | Build the Go binary only |
-| `make down` | Stop Prometheus/Grafana |
-| `make clean` | Stop services + remove binary |
-| `make destroy` | Remove everything including volumes |
 
 ## Project Structure
 
 ```
-aggregator_latency_track/
+aggregator-latency-benchmark/
 ├── cmd/
 │   ├── script/          # Main latency monitor
 │   │   ├── main.go
@@ -100,9 +108,11 @@ aggregator_latency_track/
 │   └── grafana/
 │       ├── provisioning/
 │       └── dashboards/
+├── Dockerfile
 ├── docker-compose.yml
+├── railway.json
 ├── Makefile
-└── .env
+└── .env.example
 ```
 
 ## Adding a New Aggregator
@@ -116,6 +126,25 @@ aggregator_latency_track/
 
 See existing monitor files for implementation examples.
 
+## Local Development
+
+```bash
+# Build only
+make build
+
+# Run monitors locally (without Docker)
+make run
+
+# View logs
+make logs
+
+# Stop all services
+make stop
+
+# Clean everything
+make clean
+```
+
 ## Troubleshooting
 
 ### No data in Grafana
@@ -128,22 +157,21 @@ curl http://localhost:2112/metrics | grep latency
 # Go to http://localhost:9090/targets - should show "UP"
 
 # Restart everything
-make clean && make run
+docker-compose down && docker-compose up -d
 ```
 
 ### WebSocket connection failed
 
-- Verify API key in `.env`
+- Verify API key in environment variables
 - Check if API key has WebSocket access
-- Look for errors in terminal output
+- Look for errors in container logs: `docker-compose logs monitor`
 
 ### Docker errors
 
 ```bash
 # Full reset
 docker-compose down -v
-make clean
-make run
+docker-compose up -d --build
 ```
 
 ## License
