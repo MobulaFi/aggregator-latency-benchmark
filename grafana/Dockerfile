@@ -9,4 +9,4 @@ USER grafana
 # Enable anonymous access (read-only)
 ENV GF_AUTH_ANONYMOUS_ENABLED=true
 ENV GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
-ENV GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/aggregator_latency.json
+ENV GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/pool_discovery_latency.json
