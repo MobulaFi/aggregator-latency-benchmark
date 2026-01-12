@@ -38,27 +38,6 @@ func main() {
 		}
 	}()
 
-	// CoinGecko monitor
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runGeckoTerminalMonitor(config, stopChan)
-	}()
-
-	// Mobula monitor
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runMobulaMonitor(config, stopChan)
-	}()
-
-	// Codex monitor
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runCodexMonitor(config, stopChan)
-	}()
-
 	// Mobula Pulse V2 monitor (for new pool discovery)
 	wg.Add(1)
 	go func() {
