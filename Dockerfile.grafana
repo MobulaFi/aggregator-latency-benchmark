@@ -1,7 +1,0 @@
-FROM grafana/grafana:latest
-
-USER root
-COPY monitoring/grafana/provisioning /etc/grafana/provisioning
-COPY monitoring/grafana/dashboards /var/lib/grafana/dashboards
-RUN chown -R grafana:root /etc/grafana/provisioning /var/lib/grafana/dashboards
-USER grafana
