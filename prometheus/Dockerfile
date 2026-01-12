@@ -1,7 +1,7 @@
 FROM prom/prometheus:latest
 
-# Copy config
-COPY prometheus.yml /etc/prometheus/prometheus.yml
+# Copy config from the prometheus folder
+COPY prometheus/prometheus.yml /etc/prometheus/prometheus.yml
 
 EXPOSE 9090
 

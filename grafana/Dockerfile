@@ -2,9 +2,9 @@ FROM grafana/grafana:latest
 
 USER root
 
-# Copy provisioning configs
-COPY provisioning /etc/grafana/provisioning
-COPY dashboards /var/lib/grafana/dashboards
+# Copy provisioning configs from grafana folder
+COPY grafana/provisioning /etc/grafana/provisioning
+COPY grafana/dashboards /var/lib/grafana/dashboards
 
 # Set permissions
 RUN chown -R grafana:root /etc/grafana/provisioning /var/lib/grafana/dashboards
