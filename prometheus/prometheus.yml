@@ -5,6 +5,6 @@ global:
 scrape_configs:
   - job_name: 'monitor'
     static_configs:
-      - targets: ['monitor.railway.internal:2112']
+      - targets: ['aggregator-latency-benchmark.railway.internal:2112']
     metrics_path: /metrics
 
