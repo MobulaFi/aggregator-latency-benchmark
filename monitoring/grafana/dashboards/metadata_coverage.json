@@ -131,78 +131,29 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(sum by (provider, chain) (metadata_coverage_success_total{field=\"logo\"}) / sum by (provider, chain) (metadata_coverage_checks_total{field=\"logo\"})) * 100",
+          "expr": "(metadata_coverage_success_total{field=\"logo\"} / metadata_coverage_checks_total{field=\"logo\"}) * 100",
           "format": "table",
           "instant": true,
-          "legendFormat": "Logo %",
+          "legendFormat": "__auto",
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(sum by (provider, chain) (metadata_coverage_success_total{field=\"description\"}) / sum by (provider, chain) (metadata_coverage_checks_total{field=\"description\"})) * 100",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "Desc %",
-          "refId": "B",
-          "hide": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(sum by (provider, chain) (metadata_coverage_success_total{field=\"twitter\"}) / sum by (provider, chain) (metadata_coverage_checks_total{field=\"twitter\"})) * 100",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "Twitter %",
-          "refId": "C",
-          "hide": false
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "(sum by (provider, chain) (metadata_coverage_success_total{field=\"website\"}) / sum by (provider, chain) (metadata_coverage_checks_total{field=\"website\"})) * 100",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "Website %",
-          "refId": "D",
-          "hide": false
         }
       ],
       "title": "Metadata Coverage by Provider & Chain (%)",
-      "description": "Percentage of new tokens with each metadata field present",
+      "description": "Percentage of new tokens with Logo present. Green = >70%, Yellow = 30-70%, Red = <30%",
       "transformations": [
-        {
-          "id": "seriesToColumns",
-          "options": {
-            "byField": "provider"
-          }
-        },
         {
           "id": "organize",
           "options": {
             "excludeByName": {
               "Time": true,
-              "Time 1": true,
-              "Time 2": true,
-              "Time 3": true,
-              "Time 4": true
+              "__name__": true,
+              "field": true,
+              "instance": true,
+              "job": true
             },
             "renameByName": {
-              "Value #A": "Logo %",
-              "Value #B": "Desc %",
-              "Value #C": "Twitter %",
-              "Value #D": "Website %",
+              "Value": "Logo %",
               "chain": "Chain",
-              "chain 1": "Chain",
               "provider": "Provider"
             }
           }
@@ -528,9 +479,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(sum(metadata_coverage_success_total{provider=\"mobula\", field=\"logo\"}) / sum(metadata_coverage_checks_total{provider=\"mobula\", field=\"logo\"})) * 100",
+          "expr": "(sum(metadata_coverage_success_total{provider=\"mobula\", field=\"logo\"}) / sum(metadata_coverage_checks_total{provider=\"mobula\", field=\"logo\"})) * 100 or vector(0)",
           "legendFormat": "Mobula Logo",
-          "range": true,
+          "instant": true,
           "refId": "A"
         }
       ],
@@ -599,9 +550,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(sum(metadata_coverage_success_total{provider=\"codex\", field=\"logo\"}) / sum(metadata_coverage_checks_total{provider=\"codex\", field=\"logo\"})) * 100",
+          "expr": "(sum(metadata_coverage_success_total{provider=\"codex\", field=\"logo\"}) / sum(metadata_coverage_checks_total{provider=\"codex\", field=\"logo\"})) * 100 or vector(0)",
           "legendFormat": "Codex Logo",
-          "range": true,
+          "instant": true,
           "refId": "A"
         }
       ],
@@ -670,9 +621,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(sum(metadata_coverage_success_total{provider=\"mobula\", field=\"twitter\"}) / sum(metadata_coverage_checks_total{provider=\"mobula\", field=\"twitter\"})) * 100",
+          "expr": "(sum(metadata_coverage_success_total{provider=\"mobula\", field=\"twitter\"}) / sum(metadata_coverage_checks_total{provider=\"mobula\", field=\"twitter\"})) * 100 or vector(0)",
           "legendFormat": "Mobula Twitter",
-          "range": true,
+          "instant": true,
           "refId": "A"
         }
       ],
@@ -741,9 +692,9 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "(sum(metadata_coverage_success_total{provider=\"codex\", field=\"twitter\"}) / sum(metadata_coverage_checks_total{provider=\"codex\", field=\"twitter\"})) * 100",
+          "expr": "(sum(metadata_coverage_success_total{provider=\"codex\", field=\"twitter\"}) / sum(metadata_coverage_checks_total{provider=\"codex\", field=\"twitter\"})) * 100 or vector(0)",
           "legendFormat": "Codex Twitter",
-          "range": true,
+          "instant": true,
           "refId": "A"
         }
       ],
