@@ -513,8 +513,13 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 		descStatus = "✓"
 	}
 
-	fmt.Printf("   [CODEX]  %s | Logo: %s | Desc: %s | Twitter: - | Latency: %.0fms",
-		codexStatus, logoStatus, descStatus, codexResult.ResponseTimeMs)
+	twitterStatus = "✗"
+	if codexResult.HasTwitter {
+		twitterStatus = "✓"
+	}
+
+	fmt.Printf("   [CODEX]  %s | Logo: %s | Desc: %s | Twitter: %s | Latency: %.0fms",
+		codexStatus, logoStatus, descStatus, twitterStatus, codexResult.ResponseTimeMs)
 	if codexResult.Error != "" {
 		fmt.Printf(" | Error: %s", codexResult.Error)
 	}
@@ -523,6 +528,8 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 	// Record Prometheus metrics for Codex
 	RecordMetadataCoverage("codex", chainName, "logo", codexResult.HasLogo)
 	RecordMetadataCoverage("codex", chainName, "description", codexResult.HasDescription)
+	RecordMetadataCoverage("codex", chainName, "twitter", codexResult.HasTwitter)
+	RecordMetadataCoverage("codex", chainName, "website", codexResult.HasWebsite)
 	RecordMetadataLatency("codex", chainName, codexResult.ResponseTimeMs)
 
 	// Print stats every 10 checks
