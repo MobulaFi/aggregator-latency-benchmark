@@ -21,6 +21,11 @@ var (
 	quoteAPILatency     *prometheus.HistogramVec
 	quoteAPIErrors      *prometheus.CounterVec
 	quoteAPIStatusCodes *prometheus.CounterVec
+
+	// Metadata coverage metrics
+	metadataCoverageTotal   *prometheus.CounterVec
+	metadataCoverageSuccess *prometheus.CounterVec
+	metadataAPILatency      *prometheus.HistogramVec
 )
 
 func init() {
@@ -94,6 +99,37 @@ func init() {
 		[]string{"provider", "chain", "status_code"},
 	)
 	prometheus.MustRegister(quoteAPIStatusCodes)
+
+	// Metadata coverage - total checks per provider/chain/field
+	metadataCoverageTotal = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "metadata_coverage_checks_total",
+			Help: "Total number of metadata coverage checks",
+		},
+		[]string{"provider", "chain", "field"},
+	)
+	prometheus.MustRegister(metadataCoverageTotal)
+
+	// Metadata coverage - successful (field present) checks
+	metadataCoverageSuccess = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "metadata_coverage_success_total",
+			Help: "Total number of successful metadata coverage checks (field present)",
+		},
+		[]string{"provider", "chain", "field"},
+	)
+	prometheus.MustRegister(metadataCoverageSuccess)
+
+	// Metadata API latency
+	metadataAPILatency = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "metadata_api_latency_milliseconds",
+			Help:    "Metadata API response latency in milliseconds",
+			Buckets: []float64{50, 100, 200, 500, 1000, 2000, 5000, 10000},
+		},
+		[]string{"provider", "chain"},
+	)
+	prometheus.MustRegister(metadataAPILatency)
 }
 
 func RecordPoolDiscoveryLatency(aggregator string, chain string, latencyMs float64) {
@@ -131,6 +167,19 @@ func RecordQuoteAPILatency(provider string, chain string, latencyMs float64, sta
 // RecordQuoteAPIError records a Quote API error
 func RecordQuoteAPIError(provider string, chain string, errorType string) {
 	quoteAPIErrors.WithLabelValues(provider, chain, errorType).Inc()
+}
+
+// RecordMetadataCoverage records metadata coverage for a specific field
+func RecordMetadataCoverage(provider string, chain string, field string, present bool) {
+	metadataCoverageTotal.WithLabelValues(provider, chain, field).Inc()
+	if present {
+		metadataCoverageSuccess.WithLabelValues(provider, chain, field).Inc()
+	}
+}
+
+// RecordMetadataLatency records the latency of a metadata API call
+func RecordMetadataLatency(provider string, chain string, latencyMs float64) {
+	metadataAPILatency.WithLabelValues(provider, chain).Observe(latencyMs)
 }
 
 func StartMetricsServer(addr string) error {

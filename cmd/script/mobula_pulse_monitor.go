@@ -196,6 +196,15 @@ func handlePulseV2Messages(conn *websocket.Conn, config *Config) {
 			// Record pool discovery latency metric
 			RecordPoolDiscoveryLatency("mobula-pulse", chainName, float64(discoveryLagMs))
 
+			// Queue token for metadata coverage check
+			QueueTokenForMetadataCheck(TokenToCheck{
+				Address:    token.Address,
+				ChainID:    token.ChainID,
+				Symbol:     token.Symbol,
+				Name:       token.Name,
+				DetectedAt: receiveTime,
+			})
+
 		case "update-token":
 			// Silent - just continue
 			continue

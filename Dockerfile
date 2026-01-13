@@ -33,3 +33,9 @@ EXPOSE 2112
 # Run the monitor
 CMD ["/app/monitor"]
 
+
+
+
+
+
+

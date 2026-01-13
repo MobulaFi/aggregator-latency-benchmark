@@ -66,6 +66,13 @@ func main() {
 		runQuoteAPIMonitor(config, stopChan)
 	}()
 
+	// Metadata coverage monitor (Mobula vs Codex)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runMetadataCoverageMonitor(config, stopChan)
+	}()
+
 	<-sigChan
 	fmt.Println("\n\nShutting down monitors...")
 	close(stopChan)
