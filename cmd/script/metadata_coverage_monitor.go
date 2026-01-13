@@ -600,39 +600,11 @@ func printCoverageStats() {
 }
 
 func checkTokenMetadata(token TokenToCheck, config *Config) {
-	timestamp := time.Now().UTC().Format("2006-01-02 15:04:05")
 	chainName := getChainNameForPulse(token.ChainID)
-
-	fmt.Printf("\n[METADATA][%s] Checking metadata for new token: %s (%s) on %s\n",
-		timestamp, token.Symbol, token.Address[:16]+"...", chainName)
 
 	// Check Mobula
 	mobulaResult := checkMobulaMetadata(token, config.MobulaAPIKey)
 	updateStats("mobula", mobulaResult)
-
-	mobulaStatus := "✓"
-	if mobulaResult.Error != "" {
-		mobulaStatus = "✗"
-	}
-	logoStatus := "✗"
-	if mobulaResult.HasLogo {
-		logoStatus = "✓"
-	}
-	descStatus := "✗"
-	if mobulaResult.HasDescription {
-		descStatus = "✓"
-	}
-	twitterStatus := "✗"
-	if mobulaResult.HasTwitter {
-		twitterStatus = "✓"
-	}
-
-	fmt.Printf("   [MOBULA] %s | Logo: %s | Desc: %s | Twitter: %s | Latency: %.0fms",
-		mobulaStatus, logoStatus, descStatus, twitterStatus, mobulaResult.ResponseTimeMs)
-	if mobulaResult.Error != "" {
-		fmt.Printf(" | Error: %s", mobulaResult.Error)
-	}
-	fmt.Printf("\n")
 
 	// Record Prometheus metrics for Mobula
 	RecordMetadataCoverage("mobula", chainName, "logo", mobulaResult.HasLogo)
@@ -645,31 +617,6 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 	codexResult := checkCodexMetadata(token, config.CodexAPIKey)
 	updateStats("codex", codexResult)
 
-	codexStatus := "✓"
-	if codexResult.Error != "" {
-		codexStatus = "✗"
-	}
-	logoStatus = "✗"
-	if codexResult.HasLogo {
-		logoStatus = "✓"
-	}
-	descStatus = "✗"
-	if codexResult.HasDescription {
-		descStatus = "✓"
-	}
-
-	twitterStatus = "✗"
-	if codexResult.HasTwitter {
-		twitterStatus = "✓"
-	}
-
-	fmt.Printf("   [CODEX]  %s | Logo: %s | Desc: %s | Twitter: %s | Latency: %.0fms",
-		codexStatus, logoStatus, descStatus, twitterStatus, codexResult.ResponseTimeMs)
-	if codexResult.Error != "" {
-		fmt.Printf(" | Error: %s", codexResult.Error)
-	}
-	fmt.Printf("\n")
-
 	// Record Prometheus metrics for Codex
 	RecordMetadataCoverage("codex", chainName, "logo", codexResult.HasLogo)
 	RecordMetadataCoverage("codex", chainName, "description", codexResult.HasDescription)
@@ -678,25 +625,10 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 	RecordMetadataLatency("codex", chainName, codexResult.ResponseTimeMs)
 
 	// Check Jupiter (Solana only - scraping frontend)
+	var jupiterResult MetadataFields
 	if token.ChainID == "solana" || token.ChainID == "solana:solana" {
-		jupiterResult := checkJupiterMetadata(token)
+		jupiterResult = checkJupiterMetadata(token)
 		updateStats("jupiter", jupiterResult)
-
-		jupiterStatus := "✓"
-		if jupiterResult.Error != "" {
-			jupiterStatus = "✗"
-		}
-		logoStatus = "✗"
-		if jupiterResult.HasLogo {
-			logoStatus = "✓"
-		}
-
-		fmt.Printf("   [JUPITER] %s | Logo: %s | Desc: - | Twitter: - | Latency: %.0fms",
-			jupiterStatus, logoStatus, jupiterResult.ResponseTimeMs)
-		if jupiterResult.Error != "" {
-			fmt.Printf(" | Error: %s", jupiterResult.Error)
-		}
-		fmt.Printf("\n")
 
 		// Record Prometheus metrics for Jupiter
 		RecordMetadataCoverage("jupiter", chainName, "logo", jupiterResult.HasLogo)
@@ -706,12 +638,31 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 		RecordMetadataLatency("jupiter", chainName, jupiterResult.ResponseTimeMs)
 	}
 
-	// Print stats every 10 checks
+	// Single condensed log line
+	boolToIcon := func(b bool) string {
+		if b {
+			return "✓"
+		}
+		return "✗"
+	}
+
+	jupiterLogo := "-"
+	if token.ChainID == "solana" || token.ChainID == "solana:solana" {
+		jupiterLogo = boolToIcon(jupiterResult.HasLogo)
+	}
+
+	fmt.Printf("[META] %s/%s | M:%s%s%s | C:%s%s%s | J:%s\n",
+		token.Symbol, chainName,
+		boolToIcon(mobulaResult.HasLogo), boolToIcon(mobulaResult.HasDescription), boolToIcon(mobulaResult.HasTwitter),
+		boolToIcon(codexResult.HasLogo), boolToIcon(codexResult.HasDescription), boolToIcon(codexResult.HasTwitter),
+		jupiterLogo)
+
+	// Print stats every 50 checks (reduced from 10)
 	coverageStats.mu.Lock()
 	totalChecks := coverageStats.Mobula.TotalChecks
 	coverageStats.mu.Unlock()
 
-	if totalChecks > 0 && totalChecks%10 == 0 {
+	if totalChecks > 0 && totalChecks%50 == 0 {
 		printCoverageStats()
 	}
 }
