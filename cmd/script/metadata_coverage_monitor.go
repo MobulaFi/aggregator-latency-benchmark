@@ -72,7 +72,7 @@ var (
 		Mobula: ProviderCoverage{Provider: "mobula"},
 		Codex:  ProviderCoverage{Provider: "codex"},
 	}
-	tokenQueue     = make(chan TokenToCheck, 100)
+	tokenQueue     = make(chan TokenToCheck, 500)
 	metadataClient = &http.Client{Timeout: 10 * time.Second}
 )
 
