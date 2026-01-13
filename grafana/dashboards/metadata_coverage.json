@@ -83,6 +83,21 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*jupiter.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -172,7 +187,7 @@
           "refId": "D"
         }
       ],
-      "title": "Metadata Coverage Comparison: Mobula vs Codex (%)",
+      "title": "Metadata Coverage Comparison: Mobula vs Codex vs Jupiter (%)",
       "description": "Percentage of new tokens with each metadata field present",
       "type": "barchart"
     },
@@ -212,7 +227,7 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 8
       },
@@ -282,8 +297,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 6,
+        "w": 4,
+        "x": 4,
         "y": 8
       },
       "id": 3,
@@ -352,7 +367,77 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
+        "w": 4,
+        "x": 8,
+        "y": 8
+      },
+      "id": 11,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "(sum(metadata_coverage_success_total{provider=\"jupiter\", field=\"logo\"}) / sum(metadata_coverage_checks_total{provider=\"jupiter\", field=\"logo\"})) * 100",
+          "instant": true,
+          "legendFormat": "Logo",
+          "refId": "A"
+        }
+      ],
+      "title": "Jupiter - Logo % (Solana)",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "green",
+                "value": 70
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 4,
         "x": 12,
         "y": 8
       },
@@ -422,8 +507,8 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 16,
         "y": 8
       },
       "id": 5,
@@ -539,6 +624,21 @@
                 "id": "color",
                 "value": {
                   "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*jupiter.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               }
@@ -668,6 +768,21 @@
                 }
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*jupiter.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
           }
         ]
       },
@@ -787,6 +902,21 @@
                 "id": "color",
                 "value": {
                   "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*jupiter.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               }
@@ -954,7 +1084,7 @@
   ],
   "refresh": "30s",
   "schemaVersion": 39,
-  "tags": ["metadata", "coverage", "logo", "benchmark", "mobula", "codex"],
+  "tags": ["metadata", "coverage", "logo", "benchmark", "mobula", "codex", "jupiter"],
   "templating": {
     "list": []
   },

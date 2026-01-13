@@ -19,6 +19,7 @@ import (
 const (
 	mobulaTokenDetailsURL = "https://api.mobula.io/api/2/token/details"
 	codexGraphQLURL       = "https://graph.codex.io/graphql"
+	jupiterTokenPageURL   = "https://jup.ag/tokens/"
 )
 
 // TokenToCheck represents a token discovered via Pulse that needs metadata checking
@@ -64,13 +65,15 @@ type MetadataCoverageStats struct {
 	mu        sync.Mutex
 	Mobula    ProviderCoverage
 	Codex     ProviderCoverage
+	Jupiter   ProviderCoverage
 	LastPrint time.Time
 }
 
 var (
 	coverageStats = &MetadataCoverageStats{
-		Mobula: ProviderCoverage{Provider: "mobula"},
-		Codex:  ProviderCoverage{Provider: "codex"},
+		Mobula:  ProviderCoverage{Provider: "mobula"},
+		Codex:   ProviderCoverage{Provider: "codex"},
+		Jupiter: ProviderCoverage{Provider: "jupiter"},
 	}
 	tokenQueue     = make(chan TokenToCheck, 500)
 	metadataClient = &http.Client{Timeout: 10 * time.Second}
@@ -364,6 +367,143 @@ func checkCodexMetadata(token TokenToCheck, apiKey string) MetadataFields {
 }
 
 // ============================================================================
+// Jupiter - Scraping from frontend (Solana only)
+// ============================================================================
+
+// JupiterNextData represents the __NEXT_DATA__ JSON structure
+type JupiterNextData struct {
+	Props struct {
+		PageProps struct {
+			DehydratedState struct {
+				Queries []struct {
+					State struct {
+						Data JupiterTokenData `json:"data"`
+					} `json:"state"`
+				} `json:"queries"`
+			} `json:"dehydratedState"`
+		} `json:"pageProps"`
+	} `json:"props"`
+}
+
+// JupiterTokenData represents token data from Jupiter
+type JupiterTokenData struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Symbol   string `json:"symbol"`
+	Icon     string `json:"icon"`
+	Decimals int    `json:"decimals"`
+}
+
+func checkJupiterMetadata(token TokenToCheck) MetadataFields {
+	result := MetadataFields{}
+
+	// Jupiter only supports Solana
+	if token.ChainID != "solana" && token.ChainID != "solana:solana" {
+		result.Error = "unsupported_chain"
+		return result
+	}
+
+	// Scrape the token page
+	pageURL := jupiterTokenPageURL + token.Address
+
+	req, err := http.NewRequest("GET", pageURL, nil)
+	if err != nil {
+		result.Error = fmt.Sprintf("request_create_error: %v", err)
+		return result
+	}
+
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml")
+
+	startTime := time.Now()
+	resp, err := metadataClient.Do(req)
+	result.ResponseTimeMs = float64(time.Since(startTime).Milliseconds())
+
+	if err != nil {
+		result.Error = fmt.Sprintf("request_error: %v", err)
+		return result
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		result.Error = fmt.Sprintf("status_%d", resp.StatusCode)
+		return result
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		result.Error = fmt.Sprintf("read_error: %v", err)
+		return result
+	}
+
+	// Extract __NEXT_DATA__ JSON from HTML
+	htmlContent := string(body)
+	startMarker := `<script id="__NEXT_DATA__" type="application/json">`
+	endMarker := `</script>`
+
+	startIdx := -1
+	for i := 0; i < len(htmlContent)-len(startMarker); i++ {
+		if htmlContent[i:i+len(startMarker)] == startMarker {
+			startIdx = i + len(startMarker)
+			break
+		}
+	}
+
+	if startIdx == -1 {
+		result.Error = "next_data_not_found"
+		return result
+	}
+
+	endIdx := -1
+	for i := startIdx; i < len(htmlContent)-len(endMarker); i++ {
+		if htmlContent[i:i+len(endMarker)] == endMarker {
+			endIdx = i
+			break
+		}
+	}
+
+	if endIdx == -1 {
+		result.Error = "next_data_end_not_found"
+		return result
+	}
+
+	jsonData := htmlContent[startIdx:endIdx]
+
+	var nextData JupiterNextData
+	if err := json.Unmarshal([]byte(jsonData), &nextData); err != nil {
+		result.Error = fmt.Sprintf("parse_error: %v", err)
+		return result
+	}
+
+	// Find token data in queries
+	var tokenData JupiterTokenData
+	for _, query := range nextData.Props.PageProps.DehydratedState.Queries {
+		if query.State.Data.ID == token.Address {
+			tokenData = query.State.Data
+			break
+		}
+	}
+
+	if tokenData.ID == "" {
+		result.Error = "token_not_found"
+		return result
+	}
+
+	// Check fields - Jupiter only has basic on-chain data
+	result.HasName = tokenData.Name != ""
+	result.HasSymbol = tokenData.Symbol != ""
+	result.HasLogo = tokenData.Icon != ""
+	result.LogoURL = tokenData.Icon
+	// Jupiter doesn't have description or socials
+	result.HasDescription = false
+	result.HasTwitter = false
+	result.HasWebsite = false
+	result.HasTelegram = false
+
+	return result
+}
+
+// ============================================================================
 // Stats and Reporting
 // ============================================================================
 
@@ -372,10 +512,15 @@ func updateStats(provider string, fields MetadataFields) {
 	defer coverageStats.mu.Unlock()
 
 	var stats *ProviderCoverage
-	if provider == "mobula" {
+	switch provider {
+	case "mobula":
 		stats = &coverageStats.Mobula
-	} else {
+	case "codex":
 		stats = &coverageStats.Codex
+	case "jupiter":
+		stats = &coverageStats.Jupiter
+	default:
+		return
 	}
 
 	stats.TotalChecks++
@@ -422,7 +567,7 @@ func printCoverageStats() {
 	fmt.Printf("║ Provider │ Checks │ Logo  │ Name  │ Symbol│ Desc  │Twitter│Website│Telegram│ Errors │\n")
 	fmt.Printf("╠══════════════════════════════════════════════════════════════════════════════╣\n")
 
-	for _, stats := range []*ProviderCoverage{&coverageStats.Mobula, &coverageStats.Codex} {
+	for _, stats := range []*ProviderCoverage{&coverageStats.Mobula, &coverageStats.Codex, &coverageStats.Jupiter} {
 		if stats.TotalChecks == 0 {
 			fmt.Printf("║ %-8s │ %6d │   -   │   -   │   -   │   -   │   -   │   -   │   -    │ %6d ║\n",
 				stats.Provider, stats.TotalChecks, stats.ErrorCount)
@@ -532,6 +677,35 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 	RecordMetadataCoverage("codex", chainName, "website", codexResult.HasWebsite)
 	RecordMetadataLatency("codex", chainName, codexResult.ResponseTimeMs)
 
+	// Check Jupiter (Solana only - scraping frontend)
+	if token.ChainID == "solana" || token.ChainID == "solana:solana" {
+		jupiterResult := checkJupiterMetadata(token)
+		updateStats("jupiter", jupiterResult)
+
+		jupiterStatus := "✓"
+		if jupiterResult.Error != "" {
+			jupiterStatus = "✗"
+		}
+		logoStatus = "✗"
+		if jupiterResult.HasLogo {
+			logoStatus = "✓"
+		}
+
+		fmt.Printf("   [JUPITER] %s | Logo: %s | Desc: - | Twitter: - | Latency: %.0fms",
+			jupiterStatus, logoStatus, jupiterResult.ResponseTimeMs)
+		if jupiterResult.Error != "" {
+			fmt.Printf(" | Error: %s", jupiterResult.Error)
+		}
+		fmt.Printf("\n")
+
+		// Record Prometheus metrics for Jupiter
+		RecordMetadataCoverage("jupiter", chainName, "logo", jupiterResult.HasLogo)
+		RecordMetadataCoverage("jupiter", chainName, "description", jupiterResult.HasDescription)
+		RecordMetadataCoverage("jupiter", chainName, "twitter", jupiterResult.HasTwitter)
+		RecordMetadataCoverage("jupiter", chainName, "website", jupiterResult.HasWebsite)
+		RecordMetadataLatency("jupiter", chainName, jupiterResult.ResponseTimeMs)
+	}
+
 	// Print stats every 10 checks
 	coverageStats.mu.Lock()
 	totalChecks := coverageStats.Mobula.TotalChecks
@@ -556,8 +730,9 @@ func QueueTokenForMetadataCheck(token TokenToCheck) {
 // runMetadataCoverageMonitor starts the metadata coverage monitoring
 func runMetadataCoverageMonitor(config *Config, stopChan <-chan struct{}) {
 	fmt.Println("Starting Metadata Coverage Monitor...")
-	fmt.Println("   Comparing metadata coverage: Mobula vs Codex")
+	fmt.Println("   Comparing metadata coverage: Mobula vs Codex vs Jupiter")
 	fmt.Println("   Fields tracked: Logo, Name, Symbol, Description, Twitter, Website, Telegram")
+	fmt.Println("   Note: Jupiter only supports Solana and has no description/socials")
 	fmt.Println("   Waiting for new tokens from Pulse stream...")
 	fmt.Println()
 
