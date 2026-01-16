@@ -26,13 +26,6 @@ var (
 	metadataCoverageTotal   *prometheus.CounterVec
 	metadataCoverageSuccess *prometheus.CounterVec
 	metadataAPILatency      *prometheus.HistogramVec
-
-	// Head lag metrics
-	headLagBlocks      *prometheus.GaugeVec
-	headLagSeconds     *prometheus.GaugeVec
-	blockchainHead     *prometheus.GaugeVec
-	aggregatorHead     *prometheus.GaugeVec
-	headLagErrors      *prometheus.CounterVec
 )
 
 func init() {
@@ -137,56 +130,6 @@ func init() {
 		[]string{"provider", "chain"},
 	)
 	prometheus.MustRegister(metadataAPILatency)
-
-	// Head lag - milliseconds behind (raw value)
-	headLagBlocks = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "head_lag_milliseconds",
-			Help: "Indexation latency in milliseconds (time between on-chain event and WebSocket receipt)",
-		},
-		[]string{"aggregator", "chain"},
-	)
-	prometheus.MustRegister(headLagBlocks)
-
-	// Head lag - seconds behind (converted from ms)
-	headLagSeconds = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "head_lag_seconds",
-			Help: "Indexation latency in seconds (time between on-chain event and WebSocket receipt)",
-		},
-		[]string{"aggregator", "chain"},
-	)
-	prometheus.MustRegister(headLagSeconds)
-
-	// Blockchain head block number (source of truth)
-	blockchainHead = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "blockchain_head_block",
-			Help: "Latest block number on the blockchain (source of truth)",
-		},
-		[]string{"chain"},
-	)
-	prometheus.MustRegister(blockchainHead)
-
-	// Aggregator head block number (what they have indexed)
-	aggregatorHead = prometheus.NewGaugeVec(
-		prometheus.GaugeOpts{
-			Name: "aggregator_head_block",
-			Help: "Latest block number indexed by the aggregator",
-		},
-		[]string{"aggregator", "chain"},
-	)
-	prometheus.MustRegister(aggregatorHead)
-
-	// Head lag errors counter
-	headLagErrors = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "head_lag_errors_total",
-			Help: "Total number of errors when fetching head lag data",
-		},
-		[]string{"aggregator", "chain", "error_type"},
-	)
-	prometheus.MustRegister(headLagErrors)
 }
 
 func RecordPoolDiscoveryLatency(aggregator string, chain string, latencyMs float64) {
@@ -237,32 +180,6 @@ func RecordMetadataCoverage(provider string, chain string, field string, present
 // RecordMetadataLatency records the latency of a metadata API call
 func RecordMetadataLatency(provider string, chain string, latencyMs float64) {
 	metadataAPILatency.WithLabelValues(provider, chain).Observe(latencyMs)
-}
-
-// RecordHeadLag records the head lag for an aggregator on a specific chain
-func RecordHeadLag(aggregator string, chain string, lagBlocks int64, lagSeconds float64) {
-	headLagBlocks.WithLabelValues(aggregator, chain).Set(float64(lagBlocks))
-	headLagSeconds.WithLabelValues(aggregator, chain).Set(lagSeconds)
-}
-
-// RecordBlockchainHead records the current blockchain head block number
-func RecordBlockchainHead(chain string, blockNumber int64) {
-	blockchainHead.WithLabelValues(chain).Set(float64(blockNumber))
-}
-
-// RecordAggregatorHead records the aggregator's indexed head block number
-func RecordAggregatorHead(aggregator string, chain string, blockNumber int64) {
-	aggregatorHead.WithLabelValues(aggregator, chain).Set(float64(blockNumber))
-}
-
-// RecordHeadLagError records an error when fetching head lag data
-func RecordHeadLagError(aggregator string, chain string, errorType string) {
-	headLagErrors.WithLabelValues(aggregator, chain, errorType).Inc()
-}
-
-// RecordCodexBlockNumber records the block number from Codex events
-func RecordCodexBlockNumber(chain string, blockNumber int64) {
-	aggregatorHead.WithLabelValues("codex", chain).Set(float64(blockNumber))
 }
 
 func StartMetricsServer(addr string) error {
