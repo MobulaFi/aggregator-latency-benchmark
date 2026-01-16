@@ -138,21 +138,21 @@ func init() {
 	)
 	prometheus.MustRegister(metadataAPILatency)
 
-	// Head lag - number of blocks behind
+	// Head lag - milliseconds behind (raw value)
 	headLagBlocks = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "head_lag_blocks",
-			Help: "Number of blocks the aggregator is behind the blockchain head",
+			Name: "head_lag_milliseconds",
+			Help: "Indexation latency in milliseconds (time between on-chain event and WebSocket receipt)",
 		},
 		[]string{"aggregator", "chain"},
 	)
 	prometheus.MustRegister(headLagBlocks)
 
-	// Head lag - estimated seconds behind
+	// Head lag - seconds behind (converted from ms)
 	headLagSeconds = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "head_lag_seconds",
-			Help: "Estimated seconds the aggregator is behind the blockchain head",
+			Help: "Indexation latency in seconds (time between on-chain event and WebSocket receipt)",
 		},
 		[]string{"aggregator", "chain"},
 	)

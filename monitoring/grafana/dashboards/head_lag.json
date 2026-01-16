@@ -744,7 +744,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "head_lag_blocks",
+          "expr": "head_lag_milliseconds",
           "legendFormat": "{{aggregator}} - {{chain}}",
           "range": true,
           "refId": "A"
