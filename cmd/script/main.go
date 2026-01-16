@@ -73,6 +73,13 @@ func main() {
 		runMetadataCoverageMonitor(config, stopChan)
 	}()
 
+	// Head lag monitor (blockchain head vs aggregator indexed head)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		runHeadLagMonitor(config, stopChan)
+	}()
+
 	<-sigChan
 	fmt.Println("\n\nShutting down monitors...")
 	close(stopChan)
