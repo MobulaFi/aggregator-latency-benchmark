@@ -1,7 +1,5 @@
 {
-  "annotations": {
-    "list": []
-  },
+  "annotations": { "list": [] },
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -10,11 +8,11 @@
   "panels": [
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "gridPos": { "h": 2, "w": 24, "x": 0, "y": 0 },
       "id": 10,
       "options": {
         "code": { "language": "plaintext", "showLineNumbers": false },
-        "content": "# 🚀 Launchpad Token Discovery Benchmark\n\n**Mesure** : Temps entre le déploiement on-chain d'un token et sa détection par l'aggregator.\n\n**Sources** : Pump.fun, Meteora, Four.meme, BAGS, Zora, Baseapp, Moonshot",
+        "content": "# Launchpad Token Discovery Benchmark\n**Measures**: Time between on-chain token deployment and aggregator detection. **Sources**: Pump.fun, Meteora, Four.meme, BAGS, Moonshot",
         "mode": "markdown"
       },
       "type": "text"
@@ -38,7 +36,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 3 },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 2 },
       "id": 1,
       "options": {
         "colorMode": "value",
@@ -56,7 +54,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Mobula - Moyenne Globale",
+      "title": "Mobula - Global Average",
       "type": "stat"
     },
     {
@@ -78,7 +76,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 3 },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 2 },
       "id": 2,
       "options": {
         "colorMode": "value",
@@ -96,7 +94,7 @@
           "refId": "A"
         }
       ],
-      "title": "📊 Codex - Moyenne Globale",
+      "title": "Codex - Global Average",
       "type": "stat"
     },
     {
@@ -118,25 +116,25 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 3 },
-      "id": 3,
+      "gridPos": { "h": 4, "w": 3, "x": 12, "y": 2 },
+      "id": 11,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["count"], "fields": "", "values": false },
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
         "textMode": "auto"
       },
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\"}",
+          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=\"solana\"})",
           "legendFormat": "Mobula",
           "refId": "A"
         }
       ],
-      "title": "🔢 Tokens Détectés (Mobula)",
+      "title": "Mobula Solana",
       "type": "stat"
     },
     {
@@ -158,30 +156,110 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 3 },
-      "id": 4,
+      "gridPos": { "h": 4, "w": 3, "x": 15, "y": 2 },
+      "id": 12,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["count"], "fields": "", "values": false },
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
         "textMode": "auto"
       },
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\"}",
+          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"solana\"})",
           "legendFormat": "Codex",
           "refId": "A"
         }
       ],
-      "title": "🔢 Tokens Détectés (Codex)",
+      "title": "Codex Solana",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Comparaison Solana - Latence de découverte des tokens launchpad",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 3000 },
+              { "color": "orange", "value": 5000 },
+              { "color": "red", "value": 10000 }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 3, "x": 18, "y": 2 },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=\"bnb\"})",
+          "legendFormat": "Mobula",
+          "refId": "A"
+        }
+      ],
+      "title": "Mobula BNB",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 3000 },
+              { "color": "orange", "value": 5000 },
+              { "color": "red", "value": 10000 }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 4, "w": 3, "x": 21, "y": 2 },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"bnb\"})",
+          "legendFormat": "Codex",
+          "refId": "A"
+        }
+      ],
+      "title": "Codex BNB",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Solana launchpad token discovery latency comparison",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -189,7 +267,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Latence (ms)",
+            "axisLabel": "Latency (ms)",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "points",
@@ -227,7 +305,7 @@
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 9 },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 6 },
       "id": 5,
       "options": {
         "legend": {
@@ -252,12 +330,12 @@
           "refId": "B"
         }
       ],
-      "title": "🟣 Solana - Mobula vs Codex",
+      "title": "Solana - Mobula vs Codex",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Comparaison BNB Chain - Latence de découverte des tokens launchpad",
+      "description": "BNB Chain launchpad token discovery latency comparison",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -265,7 +343,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Latence (ms)",
+            "axisLabel": "Latency (ms)",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "drawStyle": "points",
@@ -303,7 +381,7 @@
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 9 },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 6 },
       "id": 6,
       "options": {
         "legend": {
@@ -328,85 +406,21 @@
           "refId": "B"
         }
       ],
-      "title": "🟡 BNB Chain - Mobula vs Codex",
+      "title": "BNB Chain - Mobula vs Codex",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Comparaison Base - Latence de découverte des tokens launchpad (Codex uniquement)",
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Latence (ms)",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "points",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 6,
-            "scaleDistribution": { "type": "linear" },
-            "showPoints": "always",
-            "spanNulls": false,
-            "stacking": { "group": "A", "mode": "none" },
-            "thresholdsStyle": { "mode": "off" }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 5000 },
-              { "color": "red", "value": 10000 }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "Codex" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "blue", "mode": "fixed" } }]
-          }
-        ]
-      },
-      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 19 },
-      "id": 7,
-      "options": {
-        "legend": {
-          "calcs": ["mean", "min", "max", "count"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": { "mode": "multi", "sort": "desc" }
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"base\"}",
-          "legendFormat": "Codex",
-          "refId": "A"
-        }
-      ],
-      "title": "🔵 Base - Codex (Zora, Baseapp, Virtuals)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Tableau récapitulatif par chain et aggregator",
+      "description": "Summary table by aggregator and chain - sorted by average latency",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
           "custom": {
-            "align": "auto",
+            "align": "center",
             "cellOptions": { "type": "auto" },
-            "inspect": false
+            "filterable": true,
+            "inspect": false,
+            "minWidth": 100
           },
           "mappings": [],
           "thresholds": {
@@ -414,6 +428,7 @@
             "steps": [
               { "color": "green", "value": null },
               { "color": "yellow", "value": 3000 },
+              { "color": "orange", "value": 5000 },
               { "color": "red", "value": 10000 }
             ]
           },
@@ -421,31 +436,67 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Mean" },
+            "matcher": { "id": "byName", "options": "Aggregator" },
             "properties": [
-              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge" } }
+              { "id": "custom.width", "value": 150 },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Chain" },
+            "properties": [
+              { "id": "custom.width", "value": 100 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Average (ms)" },
+            "properties": [
+              { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge", "valueDisplayMode": "text" } },
+              { "id": "custom.width", "value": 200 }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Min (ms)" },
+            "properties": [
+              { "id": "custom.width", "value": 100 },
+              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Max (ms)" },
+            "properties": [
+              { "id": "custom.width", "value": 100 },
+              { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Count" },
+            "properties": [
+              { "id": "custom.width", "value": 80 },
+              { "id": "unit", "value": "none" }
             ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 19 },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
       "id": 8,
       "options": {
-        "cellHeight": "sm",
+        "cellHeight": "md",
         "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
         "showHeader": true,
-        "sortBy": [{ "desc": false, "displayName": "Mean" }]
+        "sortBy": [{ "desc": false, "displayName": "Average (ms)" }]
       },
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds",
+          "expr": "pool_discovery_latency_milliseconds{chain=~\"solana|bnb\"}",
           "format": "table",
-          "legendFormat": "{{aggregator}} - {{chain}}",
+          "instant": false,
+          "legendFormat": "__auto",
           "refId": "A"
         }
       ],
-      "title": "📋 Tableau Récapitulatif",
+      "title": "Summary Table - All Chains",
       "transformations": [
         {
           "id": "groupBy",
@@ -458,8 +509,30 @@
           }
         },
         {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "aggregator": 0,
+              "chain": 1,
+              "Value (mean)": 2,
+              "Value (min)": 3,
+              "Value (max)": 4,
+              "Value (count)": 5
+            },
+            "renameByName": {
+              "aggregator": "Aggregator",
+              "chain": "Chain",
+              "Value (mean)": "Average (ms)",
+              "Value (min)": "Min (ms)",
+              "Value (max)": "Max (ms)",
+              "Value (count)": "Count"
+            }
+          }
+        },
+        {
           "id": "sortBy",
-          "options": { "fields": {}, "sort": [{ "field": "Value (mean)", "desc": false }] }
+          "options": { "fields": {}, "sort": [{ "field": "Average (ms)", "desc": false }] }
         }
       ],
       "type": "table"
