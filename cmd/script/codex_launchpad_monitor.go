@@ -65,15 +65,21 @@ func getChainNameFromLaunchpadNetworkID(networkID int) string {
 }
 
 func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) error {
+	log.Printf("[CODEX-LAUNCHPAD] Connecting to %s...", codexLaunchpadWSURL)
+	
 	dialer := websocket.Dialer{
 		Subprotocols: []string{"graphql-transport-ws"},
 	}
 
-	conn, _, err := dialer.Dial(codexLaunchpadWSURL, nil)
+	conn, resp, err := dialer.Dial(codexLaunchpadWSURL, nil)
 	if err != nil {
+		if resp != nil {
+			return fmt.Errorf("dial failed (status %d): %w", resp.StatusCode, err)
+		}
 		return fmt.Errorf("dial failed: %w", err)
 	}
 	defer conn.Close()
+	log.Printf("[CODEX-LAUNCHPAD] WebSocket connected")
 
 	// Connection init
 	initMsg := map[string]interface{}{
@@ -85,6 +91,7 @@ func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) e
 	if err := conn.WriteJSON(initMsg); err != nil {
 		return fmt.Errorf("init failed: %w", err)
 	}
+	log.Printf("[CODEX-LAUNCHPAD] Sent connection_init")
 
 	// Wait for ack
 	conn.SetReadDeadline(time.Now().Add(10 * time.Second))
@@ -92,11 +99,13 @@ func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) e
 	if err != nil {
 		return fmt.Errorf("ack read failed: %w", err)
 	}
+	log.Printf("[CODEX-LAUNCHPAD] Received: %s", string(msg))
 
 	var ackMsg CodexLaunchpadWSMessage
 	if err := json.Unmarshal(msg, &ackMsg); err != nil || ackMsg.Type != "connection_ack" {
 		return fmt.Errorf("unexpected ack: %s", string(msg))
 	}
+	log.Printf("[CODEX-LAUNCHPAD] Connection acknowledged")
 
 	// Build network filter
 	networkIDs := make([]int, len(codexLaunchpadNetworks))
@@ -178,6 +187,10 @@ func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) e
 
 			// Process events
 			for _, event := range payload.Data.OnLaunchpadTokenEventBatch {
+				// Log all events for debugging
+				log.Printf("[CODEX-LAUNCHPAD] Event: %s, Token: %s, Launchpad: %s", 
+					event.EventType, event.Token.Symbol, event.LaunchpadName)
+				
 				// Only process Deployed or Created events for new token discovery
 				if event.EventType != "Deployed" && event.EventType != "Created" {
 					continue
@@ -198,15 +211,22 @@ func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) e
 				createdTime := time.Unix(event.Token.CreatedAt, 0)
 				discoveryLagMs := receiveTime.Sub(createdTime).Milliseconds()
 
-				// Skip invalid lags
-				if discoveryLagMs < 0 || discoveryLagMs > codexMaxLaunchpadLagMs {
+				// Skip very old events (> 2 min) but allow negative (clock skew)
+				if discoveryLagMs > codexMaxLaunchpadLagMs {
 					continue
+				}
+				
+				// For negative lags (clock skew), use absolute value for metric
+				// but log the real value for debugging
+				metricLagMs := discoveryLagMs
+				if metricLagMs < 0 {
+					metricLagMs = -metricLagMs // Use absolute value for Prometheus
 				}
 
 				chainName := getChainNameFromLaunchpadNetworkID(event.NetworkID)
 
-				// Record metric
-				RecordPoolDiscoveryLatency("codex-launchpad", chainName, float64(discoveryLagMs))
+				// Record metric (use absolute value for Prometheus)
+				RecordPoolDiscoveryLatency("codex-launchpad", chainName, float64(metricLagMs))
 
 				// Log the discovery
 				timestamp := receiveTime.Format("2006-01-02 15:04:05")
