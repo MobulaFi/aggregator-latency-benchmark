@@ -20,13 +20,21 @@ const (
 	codexMaxLaunchpadLagMs    = 120000 // 2 minutes max lag to record
 )
 
-// Launchpad networks to monitor - focus on chains with active launchpads
+// Launchpad networks to monitor - all known networks for proper naming
 var codexLaunchpadNetworks = []struct {
 	NetworkID int
 	ChainName string
 }{
 	{1399811149, "solana"}, // Pump.fun, Meteora, BAGS
 	{56, "bnb"},            // Four.meme, Flap
+	{1, "ethereum"},
+	{8453, "base"},         // Baseapp, Zora, Virtuals
+	{42161, "arbitrum"},
+	{43114, "avalanche"},
+	{137, "polygon"},
+	{143, "trx"},           // Tron
+	{10, "optimism"},
+	{81457, "blast"},
 }
 
 type CodexLaunchpadWSMessage struct {
