@@ -4,7 +4,7 @@
 
 Real-time monitoring tool for tracking blockchain data indexation latency across multiple aggregators.
 
-**[Live Dashboard](https://aggregator-latency-benchmark.up.railway.app/)**
+**[Live Dashboard](https://grafana-production-dc86.up.railway.app/)**
 
 </div>
 
