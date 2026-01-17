@@ -205,8 +205,8 @@ func connectAndMonitorMobula(config *Config, stopChan <-chan struct{}) error {
 			// Log occasionally (not every trade)
 			if lagMs > 5000 || time.Now().Second()%30 == 0 {
 				timestamp := receiveTime.Format("15:04:05")
-				fmt.Printf("[HEAD-LAG][MOBULA][%s][%s] Lag: %.2fs | Tx: %s...\n",
-					timestamp, chainName, lagSeconds, trade.Hash[:10])
+				fmt.Printf("[HEAD-LAG][MOBULA][%s][%s] Lag: %.2fs | Tx: %s\n",
+					timestamp, chainName, lagSeconds, trade.Hash)
 			}
 		}
 	}
@@ -420,8 +420,8 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 				// Log occasionally
 				if lagMs > 5000 || time.Now().Second()%30 == 0 {
 					timestamp := receiveTime.Format("15:04:05")
-					fmt.Printf("[HEAD-LAG][CODEX][%s][%s] Lag: %.2fs | Block: %d | Tx: %s...\n",
-						timestamp, chainName, lagSeconds, event.BlockNumber, event.TransactionHash[:10])
+					fmt.Printf("[HEAD-LAG][CODEX][%s][%s] Lag: %.2fs | Block: %d | Tx: %s\n",
+						timestamp, chainName, lagSeconds, event.BlockNumber, event.TransactionHash)
 				}
 			}
 		}
