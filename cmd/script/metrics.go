@@ -11,6 +11,7 @@ import (
 var (
 	// Pool discovery latency metric
 	poolDiscoveryLatency *prometheus.GaugeVec
+	poolDiscoveryErrors  *prometheus.CounterVec
 
 	// REST API latency metrics
 	restAPILatency     *prometheus.HistogramVec
@@ -44,6 +45,15 @@ func init() {
 		[]string{"aggregator", "chain"},
 	)
 	prometheus.MustRegister(poolDiscoveryLatency)
+
+	poolDiscoveryErrors = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "pool_discovery_errors_total",
+			Help: "Total number of errors when fetching pool discovery data",
+		},
+		[]string{"aggregator", "error_type"},
+	)
+	prometheus.MustRegister(poolDiscoveryErrors)
 
 	// REST API latency histogram with buckets optimized for API response times
 	restAPILatency = prometheus.NewHistogramVec(
@@ -196,6 +206,11 @@ func RecordPoolDiscoveryLatency(aggregator string, chain string, latencyMs float
 	}
 
 	poolDiscoveryLatency.WithLabelValues(aggregator, chain).Set(latencyMs)
+}
+
+// RecordPoolDiscoveryError records an error when fetching pool discovery data
+func RecordPoolDiscoveryError(aggregator string, errorType string) {
+	poolDiscoveryErrors.WithLabelValues(aggregator, errorType).Inc()
 }
 
 // RecordRESTLatency records the latency of a REST API call

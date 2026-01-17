@@ -119,28 +119,13 @@
           {
             "matcher": {
               "id": "byRegexp",
-              "options": ".*mobula.*"
+              "options": ".*codex-launchpad.*"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "orange",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": ".*gmgn.*"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               }
@@ -186,10 +171,21 @@
           "legendFormat": "{{aggregator}} - {{chain}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\"}",
+          "legendFormat": "{{aggregator}} - {{chain}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Mobula Pulse - New Pool Discovery Latency",
-      "description": "Time from pool creation on-chain to detection by Mobula Pulse (Pulse V2 API). Each point represents a new pool discovered.",
+      "title": "Launchpad Token Discovery - Mobula vs Codex",
+      "description": "Time from token deployment on launchpads (Pump.fun, Four.meme, Meteora, etc.) to detection. Compares Mobula Pulse V2 vs Codex onLaunchpadTokenEventBatch.",
       "type": "timeseries"
     },
     {
@@ -444,12 +440,23 @@
           },
           "editorMode": "code",
           "expr": "pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\"}",
-          "legendFormat": "{{chain}}",
+          "legendFormat": "Mobula - {{chain}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\"}",
+          "legendFormat": "Codex - {{chain}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Mobula Pulse - Latest Pool Discovery Latency",
+      "title": "Latest Launchpad Discovery Latency",
       "type": "gauge"
     },
     {

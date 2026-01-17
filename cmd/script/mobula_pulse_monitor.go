@@ -58,7 +58,8 @@ type PulseV2TokenPayload struct {
 }
 
 type PulseV2TokenOuter struct {
-	Token PulseV2Token `json:"token"`
+	Token  PulseV2Token `json:"token"`
+	Source string       `json:"source"` // Source is at this level, not inside token
 }
 
 type PulseV2Token struct {
@@ -111,6 +112,28 @@ func subscribeToPulse(conn *websocket.Conn, apiKey string) error {
 	return nil
 }
 
+// Launchpad sources to filter - must match Codex launchpads for fair comparison
+// Source names from Mobula Pulse V2 API
+var launchpadSources = map[string]bool{
+	"pumpfun":      true, // Pump.fun (Solana)
+	"pump.fun":     true,
+	"meteora":      true, // Meteora (Solana)
+	"meteora-dbc":  true, // Meteora DBC (Solana)
+	"meteoradbc":   true,
+	"fourmeme":     true, // Four.meme (BNB)
+	"four.meme":    true,
+	"flap":         true, // Flap (BNB) - similar to Four.meme
+	"zora":         true, // Zora (Base)
+	"baseapp":      true, // Baseapp (Base)
+	"bags":         true, // BAGS (Solana)
+	"moonshot":     true, // Moonshot
+	"raydium_cpmm": true, // Raydium launchpad pools
+}
+
+func isLaunchpadSource(source string) bool {
+	return launchpadSources[source]
+}
+
 func getChainNameForPulse(chainID string) string {
 	switch chainID {
 	case "solana:solana":
@@ -160,6 +183,20 @@ func handlePulseV2Messages(conn *websocket.Conn, config *Config) {
 			}
 
 			token := tokenMsg.Payload.Token.Token
+			// Source is at payload.token level, not payload.token.token level
+			source := tokenMsg.Payload.Token.Source
+			if source == "" {
+				source = tokenMsg.Payload.Source
+			}
+			if source == "" {
+				source = token.Source
+			}
+
+			// Filter: only process launchpad sources for fair comparison with Codex
+			if !isLaunchpadSource(source) {
+				// Skip non-launchpad tokens (DEX pools like Uniswap, Raydium, etc.)
+				continue
+			}
 
 			// Parse the created_at timestamp (ISO 8601 format)
 			var createdAt time.Time
@@ -186,12 +223,12 @@ func handlePulseV2Messages(conn *websocket.Conn, config *Config) {
 			timestamp := receiveTime.Format("2006-01-02 15:04:05")
 			createdAtFormatted := createdAt.Format("15:04:05.000")
 
-			fmt.Printf("\n[MOBULA-PULSE][%s][%s] BRAND NEW POOL CREATED!\n", timestamp, chainName)
-			fmt.Printf("   Pool: %s (%s)\n", token.Symbol, token.Name)
+			fmt.Printf("\n[MOBULA-PULSE][%s][%s] LAUNCHPAD TOKEN DETECTED!\n", timestamp, chainName)
+			fmt.Printf("   Token: %s (%s)\n", token.Symbol, token.Name)
 			fmt.Printf("   Address: %s\n", token.Address)
 			fmt.Printf("   Created on-chain: %s\n", createdAtFormatted)
 			fmt.Printf("   Discovery lag: %dms\n", discoveryLagMs)
-			fmt.Printf("   Source: %s\n\n", token.Source)
+			fmt.Printf("   Launchpad: %s\n\n", source)
 
 			// Record pool discovery latency metric
 			RecordPoolDiscoveryLatency("mobula-pulse", chainName, float64(discoveryLagMs))
@@ -224,8 +261,9 @@ func handlePulseV2Messages(conn *websocket.Conn, config *Config) {
 
 func runMobulaPulseMonitor(config *Config, stopChan <-chan struct{}) {
 	fmt.Println("Starting Mobula Pulse V2 monitor...")
-	fmt.Printf("   Monitoring %d chains for NEW POOL CREATION\n", len(pulseChains))
-	fmt.Printf("   Measuring pool discovery latency (on-chain creation → Mobula indexation)\n")
+	fmt.Printf("   Monitoring %d chains for LAUNCHPAD TOKENS ONLY\n", len(pulseChains))
+	fmt.Printf("   Launchpads: Pump.fun, Meteora, Four.meme, Zora, Baseapp, BAGS, Moonshot\n")
+	fmt.Printf("   Measuring discovery latency (on-chain creation → Mobula indexation)\n")
 	fmt.Println()
 
 	if config.MobulaAPIKey == "" {
