@@ -114,13 +114,13 @@ func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) e
 	}
 
 	// Subscribe to onLaunchpadTokenEventBatch
-	// Filter for Deployed events only (minimal latency, no metadata wait)
+	// No filter - receive ALL launchpad events to maximize coverage
 	subMsg := map[string]interface{}{
 		"type": "subscribe",
 		"id":   "launchpad_monitor",
 		"payload": map[string]interface{}{
-			"query": `subscription OnLaunchpadEvents($networkFilter: [Int!]) {
-				onLaunchpadTokenEventBatch(networkFilter: $networkFilter) {
+			"query": `subscription OnLaunchpadEvents {
+				onLaunchpadTokenEventBatch {
 					networkId
 					eventType
 					token {
@@ -133,9 +133,6 @@ func connectAndMonitorCodexLaunchpad(config *Config, stopChan <-chan struct{}) e
 					transactions1
 				}
 			}`,
-			"variables": map[string]interface{}{
-				"networkFilter": networkIDs,
-			},
 		},
 	}
 
