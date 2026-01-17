@@ -35,7 +35,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Blocks Behind",
+            "axisLabel": "Milliseconds",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -154,14 +154,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "head_lag_blocks",
+          "expr": "head_lag_milliseconds",
           "legendFormat": "{{aggregator}} - {{chain}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Head Lag (Blocks Behind Chain Head)",
-      "description": "Number of blocks the aggregator is behind the blockchain head. Lower is better. Shows how up-to-date each aggregator's indexation is.",
+      "title": "Head Lag (Milliseconds)",
+      "description": "Indexation latency in milliseconds - time between on-chain event and WebSocket receipt. Lower is better.",
       "type": "timeseries"
     },
     {
@@ -335,11 +335,11 @@
               },
               {
                 "color": "red",
-                "value": 50
+                "value": 30
               }
             ]
           },
-          "unit": "none"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -373,13 +373,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "head_lag_blocks{aggregator=\"mobula\"}",
+          "expr": "head_lag_seconds{aggregator=\"mobula\"}",
           "legendFormat": "{{chain}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Mobula - Current Head Lag (Blocks)",
+      "title": "Mobula - Current Head Lag (Seconds)",
       "type": "gauge"
     },
     {
@@ -410,11 +410,11 @@
               },
               {
                 "color": "red",
-                "value": 50
+                "value": 30
               }
             ]
           },
-          "unit": "none"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -448,13 +448,13 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "head_lag_blocks{aggregator=\"codex\"}",
+          "expr": "head_lag_seconds{aggregator=\"codex\"}",
           "legendFormat": "{{chain}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Codex - Current Head Lag (Blocks)",
+      "title": "Codex - Current Head Lag (Seconds)",
       "type": "gauge"
     },
     {

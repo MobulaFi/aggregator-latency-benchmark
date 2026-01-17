@@ -15,10 +15,9 @@
       }
     ]
   },
-  "description": "Real-time indexation latency: time between on-chain event and WebSocket receipt. Compares Mobula vs Codex across multiple chains.",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 1,
+  "graphTooltip": 0,
   "id": null,
   "links": [],
   "panels": [
@@ -27,7 +26,6 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Time in seconds between on-chain event timestamp and WebSocket message receipt. Lower is better.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -37,7 +35,7 @@
             "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
-            "axisLabel": "Latency (seconds)",
+            "axisLabel": "Milliseconds",
             "axisPlacement": "auto",
             "barAlignment": 0,
             "barWidthFactor": 0.6,
@@ -50,7 +48,7 @@
               "legend": false
             },
             "insertNulls": false,
-            "lineInterpolation": "smooth",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
@@ -76,7 +74,7 @@
               },
               {
                 "color": "yellow",
-                "value": 3
+                "value": 5
               },
               {
                 "color": "orange",
@@ -84,11 +82,11 @@
               },
               {
                 "color": "red",
-                "value": 30
+                "value": 50
               }
             ]
           },
-          "unit": "s"
+          "unit": "none"
         },
         "overrides": [
           {
@@ -100,7 +98,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#FF9830",
+                  "fixedColor": "orange",
                   "mode": "fixed"
                 }
               }
@@ -115,7 +113,7 @@
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "#73BF69",
+                  "fixedColor": "green",
                   "mode": "fixed"
                 }
               }
@@ -156,13 +154,14 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "head_lag_seconds",
+          "expr": "head_lag_milliseconds",
           "legendFormat": "{{aggregator}} - {{chain}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Head Lag - Indexation Latency (seconds)",
+      "title": "Head Lag (Milliseconds)",
+      "description": "Indexation latency in milliseconds - time between on-chain event and WebSocket receipt. Lower is better.",
       "type": "timeseries"
     },
     {
@@ -170,7 +169,149 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Current head lag for Mobula across all chains",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Seconds Behind",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "orange",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 300
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*mobula.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*codex.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "head_lag_seconds",
+          "legendFormat": "{{aggregator}} - {{chain}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Head Lag (Estimated Seconds Behind)",
+      "description": "Estimated time in seconds the aggregator is behind the blockchain head. Calculated using average block time per chain.",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -186,7 +327,7 @@
               },
               {
                 "color": "yellow",
-                "value": 3
+                "value": 5
               },
               {
                 "color": "orange",
@@ -206,9 +347,9 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 20
       },
-      "id": 2,
+      "id": 3,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
@@ -238,7 +379,7 @@
           "refId": "A"
         }
       ],
-      "title": "Mobula - Current Head Lag",
+      "title": "Mobula - Current Head Lag (Seconds)",
       "type": "gauge"
     },
     {
@@ -246,7 +387,6 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Current head lag for Codex across all chains",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -262,7 +402,7 @@
               },
               {
                 "color": "yellow",
-                "value": 3
+                "value": 5
               },
               {
                 "color": "orange",
@@ -282,9 +422,9 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 20
       },
-      "id": 3,
+      "id": 4,
       "options": {
         "minVizHeight": 75,
         "minVizWidth": 75,
@@ -314,7 +454,7 @@
           "refId": "A"
         }
       ],
-      "title": "Codex - Current Head Lag",
+      "title": "Codex - Current Head Lag (Seconds)",
       "type": "gauge"
     },
     {
@@ -322,218 +462,6 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Average head lag per aggregator across all chains",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "mobula"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF9830",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "codex"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#73BF69",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 18
-      },
-      "id": 4,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.6,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "avg(head_lag_seconds) by (aggregator)",
-          "legendFormat": "{{aggregator}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Average Head Lag by Aggregator",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "Average head lag per chain across all aggregators",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 18
-      },
-      "id": 5,
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.6,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "horizontal",
-        "showValue": "always",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "expr": "avg(head_lag_seconds) by (chain)",
-          "legendFormat": "{{chain}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Average Head Lag by Chain",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "description": "Latest block number seen by Codex for each chain (from WebSocket events)",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -584,15 +512,65 @@
           },
           "unit": "none"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*blockchain.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*mobula.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": ".*codex.*"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 10,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 28
       },
-      "id": 6,
+      "id": 5,
       "options": {
         "legend": {
           "calcs": [
@@ -614,13 +592,25 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "aggregator_head_block{aggregator=\"codex\"}",
-          "legendFormat": "codex - {{chain}}",
+          "expr": "blockchain_head_block",
+          "legendFormat": "blockchain - {{chain}}",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "aggregator_head_block",
+          "legendFormat": "{{aggregator}} - {{chain}}",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Codex - Latest Block Numbers (from WebSocket)",
+      "title": "Block Numbers - Blockchain vs Aggregators",
+      "description": "Comparison of actual blockchain head block number vs what each aggregator has indexed. The gap between lines shows the lag.",
       "type": "timeseries"
     },
     {
@@ -628,44 +618,10 @@
         "type": "prometheus",
         "uid": "prometheus"
       },
-      "description": "Head lag in milliseconds (for more granular view)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Latency (ms)",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -677,66 +633,35 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "none"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": ".*mobula.*"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#FF9830",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byRegexp",
-              "options": ".*codex.*"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#73BF69",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 6,
         "w": 24,
         "x": 0,
-        "y": 34
+        "y": 38
       },
-      "id": 7,
+      "id": 6,
       "options": {
-        "legend": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "values": false,
           "calcs": [
-            "mean",
-            "lastNotNull",
-            "max"
+            "sum"
           ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "sortBy": "Mean",
-          "sortDesc": true
+          "fields": ""
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
       },
+      "pluginVersion": "11.0.0",
       "targets": [
         {
           "datasource": {
@@ -744,37 +669,36 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "head_lag_milliseconds",
-          "legendFormat": "{{aggregator}} - {{chain}}",
+          "expr": "head_lag_errors_total",
+          "legendFormat": "{{aggregator}} - {{chain}} ({{error_type}})",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Head Lag - Detailed (milliseconds)",
-      "type": "timeseries"
+      "title": "Head Lag Fetch Errors",
+      "description": "Total number of errors when fetching head lag data from blockchain RPC or aggregator APIs.",
+      "type": "stat"
     }
   ],
-  "refresh": "10s",
+  "refresh": "30s",
   "schemaVersion": 39,
   "tags": [
     "head-lag",
     "indexation",
-    "latency",
-    "websocket",
-    "mobula",
-    "codex"
+    "blockchain",
+    "sync"
   ],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Head Lag Monitor - Indexation Latency",
+  "title": "Head Lag Monitor - Blockchain vs Aggregator Sync",
   "uid": "head_lag_monitor",
-  "version": 1,
+  "version": 0,
   "weekStart": ""
 }
