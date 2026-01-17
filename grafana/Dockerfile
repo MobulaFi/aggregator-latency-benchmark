@@ -2,6 +2,9 @@ FROM grafana/grafana:latest
 
 USER root
 
+# Cache buster - update this to force rebuild: v2
+ARG CACHE_BUST=2
+
 # Copy provisioning configs from grafana folder
 COPY grafana/provisioning /etc/grafana/provisioning
 COPY grafana/dashboards /var/lib/grafana/dashboards
