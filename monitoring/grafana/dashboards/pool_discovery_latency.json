@@ -12,7 +12,7 @@
       "id": 10,
       "options": {
         "code": { "language": "plaintext", "showLineNumbers": false },
-        "content": "# Launchpad Token Discovery Benchmark\n**Measures**: Time between on-chain token deployment and aggregator detection. **Sources**: Pump.fun, Meteora, Four.meme, BAGS, Moonshot",
+        "content": "# Launchpad Token Discovery Benchmark\n**Measures**: Time between on-chain token deployment and Mobula Pulse detection. **Sources**: Pump.fun, Meteora, Four.meme, BAGS, Moonshot",
         "mode": "markdown"
       },
       "type": "text"
@@ -36,7 +36,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 2 },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 2 },
       "id": 1,
       "options": {
         "colorMode": "value",
@@ -54,7 +54,7 @@
           "refId": "A"
         }
       ],
-      "title": "Mobula - Global Average",
+      "title": "Mobula Pulse - Global Average",
       "type": "stat"
     },
     {
@@ -76,47 +76,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 2 },
-      "id": 2,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\"})",
-          "legendFormat": "Codex",
-          "refId": "A"
-        }
-      ],
-      "title": "Codex - Global Average",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 3000 },
-              { "color": "orange", "value": 5000 },
-              { "color": "red", "value": 10000 }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 3, "x": 12, "y": 2 },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 2 },
       "id": 11,
       "options": {
         "colorMode": "value",
@@ -130,11 +90,11 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=\"solana\"})",
-          "legendFormat": "Mobula",
+          "legendFormat": "Solana",
           "refId": "A"
         }
       ],
-      "title": "Mobula Solana",
+      "title": "Mobula Pulse - Solana Average",
       "type": "stat"
     },
     {
@@ -156,47 +116,7 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 3, "x": 15, "y": 2 },
-      "id": 12,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"solana\"})",
-          "legendFormat": "Codex",
-          "refId": "A"
-        }
-      ],
-      "title": "Codex Solana",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 3000 },
-              { "color": "orange", "value": 5000 },
-              { "color": "red", "value": 10000 }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 3, "x": 18, "y": 2 },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 2 },
       "id": 13,
       "options": {
         "colorMode": "value",
@@ -210,56 +130,16 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=\"bnb\"})",
-          "legendFormat": "Mobula",
+          "legendFormat": "BNB",
           "refId": "A"
         }
       ],
-      "title": "Mobula BNB",
+      "title": "Mobula Pulse - BNB Average",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "thresholds" },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 3000 },
-              { "color": "orange", "value": 5000 },
-              { "color": "red", "value": 10000 }
-            ]
-          },
-          "unit": "ms"
-        },
-        "overrides": []
-      },
-      "gridPos": { "h": 4, "w": 3, "x": 21, "y": 2 },
-      "id": 14,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
-        "textMode": "auto"
-      },
-      "targets": [
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "avg(pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"bnb\"})",
-          "legendFormat": "Codex",
-          "refId": "A"
-        }
-      ],
-      "title": "Codex BNB",
-      "type": "stat"
-    },
-    {
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Solana launchpad token discovery latency comparison",
+      "description": "Solana launchpad token discovery latency",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -296,12 +176,8 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Mobula" },
+            "matcher": { "id": "byName", "options": "Mobula Pulse" },
             "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Codex" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
           }
         ]
       },
@@ -320,22 +196,16 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=\"solana\"}",
-          "legendFormat": "Mobula",
+          "legendFormat": "Mobula Pulse",
           "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"solana\"}",
-          "legendFormat": "Codex",
-          "refId": "B"
         }
       ],
-      "title": "Solana - Mobula vs Codex",
+      "title": "Solana - Discovery Latency",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "BNB Chain launchpad token discovery latency comparison",
+      "description": "BNB Chain launchpad token discovery latency",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "palette-classic" },
@@ -372,12 +242,8 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Mobula" },
+            "matcher": { "id": "byName", "options": "Mobula Pulse" },
             "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
-          },
-          {
-            "matcher": { "id": "byName", "options": "Codex" },
-            "properties": [{ "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }]
           }
         ]
       },
@@ -396,22 +262,16 @@
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "expr": "pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=\"bnb\"}",
-          "legendFormat": "Mobula",
+          "legendFormat": "Mobula Pulse",
           "refId": "A"
-        },
-        {
-          "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds{aggregator=\"codex-launchpad\", chain=\"bnb\"}",
-          "legendFormat": "Codex",
-          "refId": "B"
         }
       ],
-      "title": "BNB Chain - Mobula vs Codex",
+      "title": "BNB Chain - Discovery Latency",
       "type": "timeseries"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Summary table by aggregator and chain - sorted by average latency",
+      "description": "Summary table by chain - sorted by average latency",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -436,49 +296,43 @@
         },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "Aggregator" },
+            "matcher": { "id": "byName", "options": "Chain" },
             "properties": [
               { "id": "custom.width", "value": 150 },
               { "id": "custom.cellOptions", "value": { "type": "color-text" } }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "Chain" },
-            "properties": [
-              { "id": "custom.width", "value": 100 }
-            ]
-          },
-          {
             "matcher": { "id": "byName", "options": "Average (ms)" },
             "properties": [
               { "id": "custom.cellOptions", "value": { "mode": "gradient", "type": "gauge", "valueDisplayMode": "text" } },
-              { "id": "custom.width", "value": 200 }
+              { "id": "custom.width", "value": 250 }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Min (ms)" },
             "properties": [
-              { "id": "custom.width", "value": 100 },
+              { "id": "custom.width", "value": 120 },
               { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Max (ms)" },
             "properties": [
-              { "id": "custom.width", "value": 100 },
+              { "id": "custom.width", "value": 120 },
               { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
             ]
           },
           {
             "matcher": { "id": "byName", "options": "Count" },
             "properties": [
-              { "id": "custom.width", "value": 80 },
+              { "id": "custom.width", "value": 100 },
               { "id": "unit", "value": "none" }
             ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
       "id": 8,
       "options": {
         "cellHeight": "md",
@@ -489,21 +343,20 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "pool_discovery_latency_milliseconds{chain=~\"solana|bnb\"}",
+          "expr": "pool_discovery_latency_milliseconds{aggregator=\"mobula-pulse\", chain=~\"solana|bnb\"}",
           "format": "table",
           "instant": false,
           "legendFormat": "__auto",
           "refId": "A"
         }
       ],
-      "title": "Summary Table - All Chains",
+      "title": "Mobula Pulse - Summary Table",
       "transformations": [
         {
           "id": "groupBy",
           "options": {
             "fields": {
               "Value": { "aggregations": ["mean", "min", "max", "count"], "operation": "aggregate" },
-              "aggregator": { "aggregations": [], "operation": "groupby" },
               "chain": { "aggregations": [], "operation": "groupby" }
             }
           }
@@ -513,15 +366,13 @@
           "options": {
             "excludeByName": {},
             "indexByName": {
-              "aggregator": 0,
-              "chain": 1,
-              "Value (mean)": 2,
-              "Value (min)": 3,
-              "Value (max)": 4,
-              "Value (count)": 5
+              "chain": 0,
+              "Value (mean)": 1,
+              "Value (min)": 2,
+              "Value (max)": 3,
+              "Value (count)": 4
             },
             "renameByName": {
-              "aggregator": "Aggregator",
               "chain": "Chain",
               "Value (mean)": "Average (ms)",
               "Value (min)": "Min (ms)",
@@ -540,7 +391,7 @@
   ],
   "refresh": "10s",
   "schemaVersion": 39,
-  "tags": ["pool-discovery", "latency", "launchpad", "mobula", "codex"],
+  "tags": ["pool-discovery", "latency", "launchpad", "mobula"],
   "templating": { "list": [] },
   "time": { "from": "now-1h", "to": "now" },
   "timepicker": {},

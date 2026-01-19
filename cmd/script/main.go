@@ -45,13 +45,6 @@ func main() {
 		runMobulaPulseMonitor(config, stopChan)
 	}()
 
-	// Codex Launchpad monitor (real-time new token discovery - comparable to Mobula Pulse)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runCodexLaunchpadMonitor(config, stopChan)
-	}()
-
 	// Mobula REST API monitor
 	wg.Add(1)
 	go func() {
