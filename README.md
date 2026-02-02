@@ -14,7 +14,7 @@ The monitor connects to aggregator WebSocket feeds and measures latency by compa
 
 Metrics are exposed via Prometheus and visualized in Grafana dashboards.
 
-**Tracked Aggregators**: CoinGecko, Mobula, Codex
+**Tracked Aggregators**: GeckoTerminal, Mobula, Codex
 **Supported Chains**: Solana, Ethereum, BNB Chain, Base, Arbitrum
 
 ## Quick Start

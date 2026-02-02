@@ -462,7 +462,7 @@ func runHeadLagMonitor(config *Config, stopChan <-chan struct{}) {
 	fmt.Println("║              HEAD LAG MONITOR (WebSocket-based)              ║")
 	fmt.Println("╠══════════════════════════════════════════════════════════════╣")
 	fmt.Println("║  Measures: Time between on-chain event and WebSocket receipt ║")
-	fmt.Println("║  Providers: Mobula (fast-trade) + Codex (GraphQL)            ║")
+	fmt.Println("║  Providers: Mobula + Codex + GeckoTerminal                   ║")
 	fmt.Printf("║  Pools: %d high-activity pools across 5 chains               ║\n", len(headLagPools))
 	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
 	fmt.Println()
@@ -477,7 +477,11 @@ func runHeadLagMonitor(config *Config, stopChan <-chan struct{}) {
 	wg.Add(1)
 	go runCodexHeadLagMonitor(config, stopChan, &wg)
 
-	// Wait for both to finish
+	// Start GeckoTerminal monitor
+	wg.Add(1)
+	go runGeckoTerminalHeadLagMonitor(config, stopChan, &wg)
+
+	// Wait for all to finish
 	wg.Wait()
 	fmt.Println("[HEAD-LAG] All monitors stopped")
 }
