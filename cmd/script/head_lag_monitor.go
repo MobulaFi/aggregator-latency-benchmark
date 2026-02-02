@@ -264,8 +264,8 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 
 	fmt.Println("[HEAD-LAG][CODEX] Starting WebSocket monitor (via Defined.fi auth)...")
 
-	reconnectDelay := 5 * time.Second
-	maxReconnectDelay := 60 * time.Second
+	reconnectDelay := 30 * time.Second
+	maxReconnectDelay := 5 * time.Minute
 
 	for {
 		select {
