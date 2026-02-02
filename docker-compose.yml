@@ -50,7 +50,7 @@ services:
       - GF_INSTALL_PLUGINS=grafana-clock-panel
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
-      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/pool_discovery_latency.json
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/head_lag.json
     networks:
       - monitoring
     depends_on:
