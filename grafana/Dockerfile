@@ -2,8 +2,8 @@ FROM grafana/grafana:latest
 
 USER root
 
-# Cache buster - update this to force rebuild: v3
-ARG CACHE_BUST=3
+# Cache buster - update this to force rebuild: v4
+ARG CACHE_BUST=4
 
 # Copy provisioning configs from grafana folder
 COPY grafana/provisioning /etc/grafana/provisioning
