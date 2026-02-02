@@ -64,7 +64,7 @@ docker-compose up -d
    ```
    COINGECKO_API_KEY=your_coingecko_api_key
    MOBULA_API_KEY=your_mobula_api_key
-   CODEX_API_KEY=your_codex_api_key
+   DEFINED_SESSION_COOKIE=your_defined_session_cookie
    ```
 
 4. Set environment variables for Grafana:
@@ -82,7 +82,7 @@ docker-compose up -d
 |----------|-------------|----------|
 | `COINGECKO_API_KEY` | CoinGecko Pro API key | Optional |
 | `MOBULA_API_KEY` | Mobula API key | Optional |
-| `CODEX_API_KEY` | Codex API key | Optional |
+| `DEFINED_SESSION_COOKIE` | Defined.fi session cookie (for Codex data) | Optional |
 | `GF_SECURITY_ADMIN_PASSWORD` | Grafana admin password | Recommended |
 
 If an API key is not provided, that specific monitor will be skipped.

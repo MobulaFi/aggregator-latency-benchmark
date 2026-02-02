@@ -230,7 +230,7 @@ func getChainNameFromBlockchain(blockchain string) string {
 }
 
 // ============================================================================
-// Codex WebSocket Monitor
+// Codex WebSocket Monitor (using Defined.fi session auth)
 // ============================================================================
 
 type CodexWSMessage struct {
@@ -257,12 +257,12 @@ type CodexEventData struct {
 func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	if config.CodexAPIKey == "" {
-		fmt.Println("[HEAD-LAG][CODEX] API key not set, skipping")
+	if config.DefinedSessionCookie == "" {
+		fmt.Println("[HEAD-LAG][CODEX] Session cookie not set, skipping")
 		return
 	}
 
-	fmt.Println("[HEAD-LAG][CODEX] Starting WebSocket monitor...")
+	fmt.Println("[HEAD-LAG][CODEX] Starting WebSocket monitor (via Defined.fi auth)...")
 
 	reconnectDelay := 5 * time.Second
 	maxReconnectDelay := 60 * time.Second
@@ -276,7 +276,7 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 			err := connectAndMonitorCodex(config, stopChan)
 			if err != nil {
 				log.Printf("[HEAD-LAG][CODEX] Connection error: %v. Reconnecting in %v...", err, reconnectDelay)
-				
+
 				select {
 				case <-stopChan:
 					return
@@ -294,6 +294,12 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 }
 
 func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
+	// Get JWT token from Defined.fi session cookie
+	jwtToken, err := GetDefinedJWTToken(config.DefinedSessionCookie)
+	if err != nil {
+		return fmt.Errorf("failed to get JWT token: %w", err)
+	}
+
 	dialer := websocket.Dialer{
 		Subprotocols: []string{"graphql-transport-ws"},
 	}
@@ -304,11 +310,11 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 	}
 	defer conn.Close()
 
-	// Connection init
+	// Connection init with Bearer token
 	initMsg := map[string]interface{}{
 		"type": "connection_init",
 		"payload": map[string]interface{}{
-			"Authorization": config.CodexAPIKey,
+			"Authorization": fmt.Sprintf("Bearer %s", jwtToken),
 		},
 	}
 	if err := conn.WriteJSON(initMsg); err != nil {
@@ -330,13 +336,13 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 	// Subscribe to each pool
 	for i, pool := range headLagPools {
 		subID := fmt.Sprintf("headlag_%d", i)
-		
+
 		subMsg := map[string]interface{}{
 			"type": "subscribe",
 			"id":   subID,
 			"payload": map[string]interface{}{
-				"query": `subscription OnPoolEvents($id: String!) {
-					onEventsCreated(id: $id) {
+				"query": `subscription OnPoolEvents($address: String!, $networkId: Int!) {
+					onEventsCreated(address: $address, networkId: $networkId) {
 						address
 						networkId
 						events {
@@ -348,7 +354,8 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 					}
 				}`,
 				"variables": map[string]interface{}{
-					"id": fmt.Sprintf("%s:%d", pool.Address, pool.NetworkID),
+					"address":   pool.Address,
+					"networkId": pool.NetworkID,
 				},
 			},
 		}
@@ -356,7 +363,7 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 		if err := conn.WriteJSON(subMsg); err != nil {
 			return fmt.Errorf("subscribe to %s failed: %w", pool.Name, err)
 		}
-		
+
 		time.Sleep(100 * time.Millisecond) // Small delay between subscriptions
 	}
 

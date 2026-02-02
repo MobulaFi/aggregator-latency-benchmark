@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	CoinGeckoAPIKey string
-	MobulaAPIKey    string
-	CodexAPIKey     string
+	CoinGeckoAPIKey       string
+	MobulaAPIKey          string
+	DefinedSessionCookie  string
 }
 
 func loadEnv() (*Config, error) {
@@ -19,10 +19,10 @@ func loadEnv() (*Config, error) {
 	// First, try to load from environment variables (for production/Railway)
 	config.CoinGeckoAPIKey = os.Getenv("COINGECKO_API_KEY")
 	config.MobulaAPIKey = os.Getenv("MOBULA_API_KEY")
-	config.CodexAPIKey = os.Getenv("CODEX_API_KEY")
+	config.DefinedSessionCookie = os.Getenv("DEFINED_SESSION_COOKIE")
 
 	// If all env vars are set, return early (production mode)
-	if config.CoinGeckoAPIKey != "" || config.MobulaAPIKey != "" || config.CodexAPIKey != "" {
+	if config.CoinGeckoAPIKey != "" || config.MobulaAPIKey != "" || config.DefinedSessionCookie != "" {
 		return config, nil
 	}
 
@@ -56,9 +56,9 @@ func loadEnv() (*Config, error) {
 			if config.MobulaAPIKey == "" {
 				config.MobulaAPIKey = value
 			}
-		case "CODEX_API_KEY":
-			if config.CodexAPIKey == "" {
-				config.CodexAPIKey = value
+		case "DEFINED_SESSION_COOKIE":
+			if config.DefinedSessionCookie == "" {
+				config.DefinedSessionCookie = value
 			}
 		}
 	}

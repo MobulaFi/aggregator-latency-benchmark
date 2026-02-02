@@ -82,7 +82,7 @@ func callCodexGraphQLAPI(apiKey string, poolAddress string, networkID int, chain
 	}
 
 	// Add headers
-	req.Header.Set("Authorization", apiKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
 
 	// Measure latency
@@ -119,8 +119,8 @@ func monitorCodexREST(config *Config, stopChan <-chan struct{}) {
 	fmt.Printf("   Endpoint: POST /graphql (GraphQL)\n")
 	fmt.Println()
 
-	if config.CodexAPIKey == "" {
-		fmt.Println("CODEX_API_KEY not set in .env file. Skipping Codex REST monitor.")
+	if config.DefinedSessionCookie == "" {
+		fmt.Println("DEFINED_SESSION_COOKIE not set in .env file. Skipping Codex REST monitor.")
 		return
 	}
 
@@ -147,9 +147,16 @@ func monitorCodexREST(config *Config, stopChan <-chan struct{}) {
 func performCodexRESTChecks(config *Config) {
 	timestamp := time.Now().UTC().Format("2006-01-02 15:04:05")
 
+	// Get JWT token from Defined.fi
+	jwtToken, err := GetDefinedJWTToken(config.DefinedSessionCookie)
+	if err != nil {
+		fmt.Printf("[CODEX-REST][%s] Failed to get JWT token: %v\n", timestamp, err)
+		return
+	}
+
 	for _, chain := range codexRESTChains {
 		latencyMs, statusCode, err := callCodexGraphQLAPI(
-			config.CodexAPIKey,
+			jwtToken,
 			chain.poolAddress,
 			chain.networkID,
 			chain.chainName,

@@ -236,7 +236,7 @@ func getCodexNetworkID(chainID string) int {
 	}
 }
 
-func checkCodexMetadata(token TokenToCheck, apiKey string) MetadataFields {
+func checkCodexMetadata(token TokenToCheck, sessionCookie string) MetadataFields {
 	result := MetadataFields{}
 
 	networkID := getCodexNetworkID(token.ChainID)
@@ -244,6 +244,14 @@ func checkCodexMetadata(token TokenToCheck, apiKey string) MetadataFields {
 		result.Error = "unsupported_chain"
 		return result
 	}
+
+	// Get JWT token from Defined.fi
+	jwtToken, err := GetDefinedJWTToken(sessionCookie)
+	if err != nil {
+		result.Error = fmt.Sprintf("jwt_token_error: %v", err)
+		return result
+	}
+	apiKey := jwtToken
 
 	// Use token query which returns EnhancedToken with socialLinks and info
 	// https://docs.codex.io/api-reference/queries/token
@@ -295,7 +303,7 @@ func checkCodexMetadata(token TokenToCheck, apiKey string) MetadataFields {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	if apiKey != "" {
-		req.Header.Set("Authorization", apiKey)
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 	}
 
 	startTime := time.Now()
@@ -614,7 +622,7 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 	RecordMetadataLatency("mobula", chainName, mobulaResult.ResponseTimeMs)
 
 	// Check Codex
-	codexResult := checkCodexMetadata(token, config.CodexAPIKey)
+	codexResult := checkCodexMetadata(token, config.DefinedSessionCookie)
 	updateStats("codex", codexResult)
 
 	// Record Prometheus metrics for Codex
