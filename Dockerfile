@@ -17,12 +17,20 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/monitor ./cmd/script
 
 # Runtime stage
-FROM alpine:latest
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
-# Install ca-certificates for HTTPS
-RUN apk --no-cache add ca-certificates
+# Install chromium and dependencies for headless browser
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    chromium \
+    chromium-driver \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set chromium path for chromedp
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDP_DISABLE_GPU=true
 
 # Copy binary from builder
 COPY --from=builder /app/monitor /app/monitor

@@ -20,6 +20,20 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Always scrape a fresh Defined.fi session cookie at startup
+	fmt.Println("Scraping fresh Defined.fi session cookie...")
+	sessionCookie, err := RefreshSessionCookie()
+	if err != nil {
+		fmt.Printf("Warning: Failed to scrape session cookie: %v\n", err)
+		fmt.Println("Codex REST monitor may not work properly")
+		// Try to use existing cookie if available
+		if config.DefinedSessionCookie != "" {
+			fmt.Println("Falling back to existing DEFINED_SESSION_COOKIE from environment")
+		}
+	} else {
+		config.DefinedSessionCookie = sessionCookie
+	}
+
 	fmt.Println("Metrics will be exposed on :2112/metrics for Prometheus")
 	fmt.Println()
 
