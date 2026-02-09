@@ -1,8 +1,14 @@
 FROM grafana/grafana:latest
 
-# Copy entrypoint script
+USER root
+
+# Copy dashboards and entrypoint script
+COPY monitoring/grafana/dashboards /dashboards-source
 COPY grafana-entrypoint.sh /grafana-entrypoint.sh
 RUN chmod +x /grafana-entrypoint.sh
+
+# Switch back to grafana user
+USER grafana
 
 # Override entrypoint
 ENTRYPOINT ["/bin/sh", "/grafana-entrypoint.sh"]
