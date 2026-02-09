@@ -42,6 +42,8 @@ services:
     volumes:
       - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
       - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana-entrypoint.sh:/grafana-entrypoint.sh:ro
+    entrypoint: ["/bin/sh", "/grafana-entrypoint.sh"]
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD:-admin}
