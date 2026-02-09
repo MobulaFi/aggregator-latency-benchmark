@@ -1,0 +1,8 @@
+FROM grafana/grafana:latest
+
+# Copy entrypoint script
+COPY grafana-entrypoint.sh /grafana-entrypoint.sh
+RUN chmod +x /grafana-entrypoint.sh
+
+# Override entrypoint
+ENTRYPOINT ["/bin/sh", "/grafana-entrypoint.sh"]
