@@ -39,8 +39,8 @@ type CodexGraphQLResponse struct {
 	} `json:"errors"`
 }
 
-// callCodexGraphQLAPI makes a GraphQL query to Codex API
-func callCodexGraphQLAPI(apiKey string, poolAddress string, networkID int, chainName string) (float64, int, error) {
+// callCodexGraphQLAPI makes a GraphQL query to Codex API using session cookie
+func callCodexGraphQLAPI(sessionCookie string, poolAddress string, networkID int, chainName string) (float64, int, error) {
 	// Create HTTP client with timeout
 	client := &http.Client{
 		Timeout: 10 * time.Second,
@@ -81,9 +81,11 @@ func callCodexGraphQLAPI(apiKey string, poolAddress string, networkID int, chain
 		return 0, 0, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// Add headers
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+	// Add headers and session cookie (bypass JWT generation)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Origin", "https://www.defined.fi")
+	req.Header.Set("Referer", "https://www.defined.fi/")
+	req.AddCookie(&http.Cookie{Name: "session", Value: sessionCookie})
 
 	// Measure latency
 	startTime := time.Now()
@@ -152,18 +154,11 @@ func monitorCodexREST(config *Config, stopChan <-chan struct{}) {
 func performCodexRESTChecks(config *Config) {
 	timestamp := time.Now().UTC().Format("2006-01-02 15:04:05")
 
-	// Get JWT token from Defined.fi
-	jwtToken, err := GetDefinedJWTToken(config.DefinedSessionCookie)
-	if err != nil {
-		fmt.Printf("[CODEX-REST][%s] Failed to get JWT token: %v\n", timestamp, err)
-		// Skip auto-refresh on Railway (no Chrome available)
-		return
-	}
-
+	// Use session cookie directly (no JWT generation needed)
 	authErrorCount := 0
 	for _, chain := range codexRESTChains {
 		latencyMs, statusCode, err := callCodexGraphQLAPI(
-			jwtToken,
+			config.DefinedSessionCookie,
 			chain.poolAddress,
 			chain.networkID,
 			chain.chainName,
