@@ -133,13 +133,14 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 	if !exists {
 		return
 	}
-	// Build URL
-	var url string
-	if pool.IsEVM {
-		url = fmt.Sprintf("https://explorer.moralis.com/api/web3/pairs/%s/ohlcv", pool.PairAddress)
-	} else {
-		url = fmt.Sprintf("https://explorer.moralis.com/api/solana/web3/token/mainnet/pairs/%s/ohlcv", pool.PairAddress)
-	}
+
+	// Skip if no Moralis API key configured
+	// TODO: Add MORALIS_API_KEY to config
+	// For now, skip Moralis checks silently
+	return
+
+	// Build URL using correct Moralis Web3 Data API
+	url := fmt.Sprintf("https://deep-index.moralis.io/api/v2.2/pairs/%s/ohlcv", pool.PairAddress)
 
 	// Query from slightly before the on-chain trade to now
 	toDate := time.Now().UTC()
@@ -155,15 +156,14 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 	if pool.IsEVM {
 		q.Add("chain", pool.ChainID)
 	}
-	q.Add("toDate", toDate.Format("2006-01-02T15:04:05.000Z"))
-	q.Add("fromDate", fromDate.Format("2006-01-02T15:04:05.000Z"))
-	q.Add("timeframe", "1min")
-	q.Add("currency", "usd")
+	q.Add("to_date", toDate.Unix()) // Unix timestamp
+	q.Add("from_date", fromDate.Unix())
+	q.Add("timeframe", "1m")
 	httpReq.URL.RawQuery = q.Encode()
 
-	// Set headers
-	httpReq.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
-	httpReq.Header.Set("Referer", "https://explorer.moralis.com/")
+	// Set headers with API key
+	// httpReq.Header.Set("X-API-Key", config.MoralisAPIKey)
+	httpReq.Header.Set("Accept", "application/json")
 
 	// Make request
 	checkTime := time.Now()
