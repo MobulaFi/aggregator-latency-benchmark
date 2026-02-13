@@ -46,18 +46,13 @@ func callCodexGraphQLAPI(sessionCookie string, poolAddress string, networkID int
 		Timeout: 10 * time.Second,
 	}
 
-	// Build GraphQL query - filterPairs is reliable and works for all chains
-	// This query filters pairs by network and returns one result to measure latency
+	// Build GraphQL query - get specific pair info to measure latency
 	query := `
-		query FilterPairs($networkId: [Int!]) {
-			filterPairs(filters: { network: $networkId }, limit: 1) {
-				results {
-					pair {
-						address
-						token0
-						token1
-					}
-				}
+		query GetPair($address: String!, $networkId: Int!) {
+			pair(address: $address, networkId: $networkId) {
+				address
+				token0
+				token1
 			}
 		}
 	`
@@ -66,7 +61,8 @@ func callCodexGraphQLAPI(sessionCookie string, poolAddress string, networkID int
 	reqBody := CodexGraphQLRequest{
 		Query: query,
 		Variables: map[string]interface{}{
-			"networkId": []int{networkID},
+			"address":   poolAddress,
+			"networkId": networkID,
 		},
 	}
 
