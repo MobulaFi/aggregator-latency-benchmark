@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"sync"
 	"time"
 
@@ -293,28 +294,26 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 }
 
 func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
-	// Get JWT token from Defined.fi session cookie
-	jwtToken, err := GetDefinedJWTToken(config.DefinedSessionCookie)
-	if err != nil {
-		return fmt.Errorf("failed to get JWT token: %w", err)
-	}
-
+	// Use session cookie directly (no JWT generation needed)
 	dialer := websocket.Dialer{
 		Subprotocols: []string{"graphql-transport-ws"},
 	}
 
-	conn, _, err := dialer.Dial("wss://graph.codex.io/graphql", nil)
+	// Add session cookie to headers
+	headers := http.Header{}
+	headers.Set("Cookie", fmt.Sprintf("session=%s", config.DefinedSessionCookie))
+	headers.Set("Origin", "https://www.defined.fi")
+
+	conn, _, err := dialer.Dial("wss://graph.codex.io/graphql", headers)
 	if err != nil {
 		return fmt.Errorf("dial failed: %w", err)
 	}
 	defer conn.Close()
 
-	// Connection init with Bearer token
+	// Connection init (empty payload, auth via cookie)
 	initMsg := map[string]interface{}{
-		"type": "connection_init",
-		"payload": map[string]interface{}{
-			"Authorization": fmt.Sprintf("Bearer %s", jwtToken),
-		},
+		"type":    "connection_init",
+		"payload": map[string]interface{}{},
 	}
 	if err := conn.WriteJSON(initMsg); err != nil {
 		return fmt.Errorf("init failed: %w", err)
