@@ -202,6 +202,9 @@ func connectAndMonitorMobula(config *Config, stopChan <-chan struct{}) error {
 			// Record metric
 			RecordHeadLag("mobula", chainName, lagMs, lagSeconds)
 
+			// Trigger Moralis check for this trade
+			TriggerMoralisCheck(trade.Pair, onChainTime, trade.Hash)
+
 			// Log occasionally (not every trade)
 			if lagMs > 5000 || time.Now().Second()%30 == 0 {
 				timestamp := receiveTime.Format("15:04:05")
@@ -437,6 +440,10 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 				RecordHeadLag("codex", chainName, lagMs, lagSeconds)
 				RecordCodexBlockNumber(chainName, event.BlockNumber)
 
+				// Trigger Moralis check for this trade
+				poolAddress := eventData.Data.OnEventsCreated.Address
+				TriggerMoralisCheck(poolAddress, onChainTime, event.TransactionHash)
+
 				// Log occasionally
 				if lagMs > 5000 || time.Now().Second()%30 == 0 {
 					timestamp := receiveTime.Format("15:04:05")
@@ -475,7 +482,7 @@ func runHeadLagMonitor(config *Config, stopChan <-chan struct{}) {
 	fmt.Println("║              HEAD LAG MONITOR (WebSocket-based)              ║")
 	fmt.Println("╠══════════════════════════════════════════════════════════════╣")
 	fmt.Println("║  Measures: Time between on-chain event and WebSocket receipt ║")
-	fmt.Println("║  Providers: Mobula + Codex + GeckoTerminal                   ║")
+	fmt.Println("║  Providers: Mobula + Codex + GeckoTerminal + Moralis         ║")
 	fmt.Printf("║  Pools: %d high-activity pools across 5 chains               ║\n", len(headLagPools))
 	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
 	fmt.Println()
@@ -493,6 +500,10 @@ func runHeadLagMonitor(config *Config, stopChan <-chan struct{}) {
 	// Start GeckoTerminal monitor
 	wg.Add(1)
 	go runGeckoTerminalHeadLagMonitor(config, stopChan, &wg)
+
+	// Start Moralis REST monitor
+	wg.Add(1)
+	go runMoralisRESTMonitor(config, stopChan, &wg)
 
 	// Wait for all to finish
 	wg.Wait()
