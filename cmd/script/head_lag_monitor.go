@@ -274,24 +274,7 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 			err := connectAndMonitorCodex(config, stopChan)
 			if err != nil {
 				log.Printf("[HEAD-LAG][CODEX] Connection error: %v", err)
-
-				// Check if it's an auth error - try to refresh session cookie
-				if err.Error() == "failed to get JWT token: rate limited (429), please wait" ||
-				   err.Error() == "failed to get JWT token: unexpected status 401: " ||
-				   err.Error() == "failed to get JWT token: no token returned" {
-					fmt.Println("[HEAD-LAG][CODEX] Auth error detected, attempting to refresh session cookie...")
-					newSessionCookie, refreshErr := RefreshSessionCookie()
-					if refreshErr != nil {
-						log.Printf("[HEAD-LAG][CODEX] Failed to refresh session cookie: %v", refreshErr)
-					} else {
-						config.DefinedSessionCookie = newSessionCookie
-						InvalidateTokenCache()
-						fmt.Println("[HEAD-LAG][CODEX] Session cookie refreshed successfully")
-						// Reset delay after successful refresh
-						reconnectDelay = 5 * time.Second
-					}
-				}
-
+				// Skip auto-refresh on Railway (no Chrome available)
 				log.Printf("[HEAD-LAG][CODEX] Reconnecting in %v...", reconnectDelay)
 				select {
 				case <-stopChan:
