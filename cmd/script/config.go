@@ -17,9 +17,9 @@ func loadEnv() (*Config, error) {
 	config := &Config{}
 
 	// First, try to load from environment variables (for production/Railway)
-	config.CoinGeckoAPIKey = os.Getenv("COINGECKO_API_KEY")
-	config.MobulaAPIKey = os.Getenv("MOBULA_API_KEY")
-	config.DefinedSessionCookie = os.Getenv("DEFINED_SESSION_COOKIE")
+	config.CoinGeckoAPIKey = strings.TrimSpace(os.Getenv("COINGECKO_API_KEY"))
+	config.MobulaAPIKey = strings.TrimSpace(os.Getenv("MOBULA_API_KEY"))
+	config.DefinedSessionCookie = strings.TrimSpace(os.Getenv("DEFINED_SESSION_COOKIE"))
 
 	// If all env vars are set, return early (production mode)
 	if config.CoinGeckoAPIKey != "" || config.MobulaAPIKey != "" || config.DefinedSessionCookie != "" {
