@@ -140,7 +140,12 @@ func generateDefinedJWTToken(sessionCookie string) (string, error) {
 	respBody, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode == 429 {
-		return "", fmt.Errorf("rate limited (429), please wait")
+		// Parse retry-after header if available
+		retryAfter := resp.Header.Get("Retry-After")
+		if retryAfter != "" {
+			return "", fmt.Errorf("rate limited (429), retry after: %s", retryAfter)
+		}
+		return "", fmt.Errorf("rate limited (429), too many token requests - will retry later")
 	}
 
 	if resp.StatusCode != 200 {

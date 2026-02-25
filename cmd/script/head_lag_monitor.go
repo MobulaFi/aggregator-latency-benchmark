@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
@@ -272,21 +273,14 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 			if err != nil {
 				log.Printf("[HEAD-LAG][CODEX] Connection error: %v", err)
 
-				// Check if it's an auth error - try to refresh session cookie
-				if err.Error() == "failed to get JWT token: rate limited (429), please wait" ||
-				   err.Error() == "failed to get JWT token: unexpected status 401: " ||
-				   err.Error() == "failed to get JWT token: no token returned" {
-					fmt.Println("[HEAD-LAG][CODEX] Auth error detected, attempting to refresh session cookie...")
-					newSessionCookie, refreshErr := RefreshSessionCookie()
-					if refreshErr != nil {
-						log.Printf("[HEAD-LAG][CODEX] Failed to refresh session cookie: %v", refreshErr)
-					} else {
-						config.DefinedSessionCookie = newSessionCookie
-						InvalidateTokenCache()
-						fmt.Println("[HEAD-LAG][CODEX] Session cookie refreshed successfully")
-						// Reset delay after successful refresh
-						reconnectDelay = 5 * time.Second
-					}
+				// Check if it's a rate limit error
+				if strings.Contains(err.Error(), "rate limited (429)") {
+					log.Printf("[HEAD-LAG][CODEX] ⚠ Rate limited - waiting %v before retry", reconnectDelay)
+					// Longer delay for rate limits
+					reconnectDelay = 2 * time.Minute
+				} else if strings.Contains(err.Error(), "authentication") || strings.Contains(err.Error(), "401") {
+					log.Printf("[HEAD-LAG][CODEX] Authentication error - invalidating token cache")
+					InvalidateTokenCache()
 				}
 
 				log.Printf("[HEAD-LAG][CODEX] Reconnecting in %v...", reconnectDelay)
@@ -307,7 +301,7 @@ func runCodexHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg *sync.W
 }
 
 func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
-	// Get JWT token from Defined.fi session cookie
+	// Get JWT token from Defined.fi session cookie (required - cookie alone doesn't work)
 	jwtToken, err := GetDefinedJWTToken(config.DefinedSessionCookie)
 	if err != nil {
 		return fmt.Errorf("failed to get JWT token: %w", err)

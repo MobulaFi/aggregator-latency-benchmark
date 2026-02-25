@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -155,28 +156,14 @@ func performCodexRESTChecks(config *Config) {
 	// Get JWT token from Defined.fi
 	jwtToken, err := GetDefinedJWTToken(config.DefinedSessionCookie)
 	if err != nil {
+		// Check if it's a rate limit error
+		if strings.Contains(err.Error(), "rate limited (429)") {
+			fmt.Printf("[CODEX-REST][%s] ⚠ Rate limited - skipping this check cycle (will retry in 20s)\n", timestamp)
+			return
+		}
+
 		fmt.Printf("[CODEX-REST][%s] Failed to get JWT token: %v\n", timestamp, err)
-
-		// Try to refresh session cookie
-		fmt.Println("[CODEX-REST] Attempting to refresh session cookie...")
-		newSessionCookie, refreshErr := RefreshSessionCookie()
-		if refreshErr != nil {
-			fmt.Printf("[CODEX-REST] Failed to refresh session cookie: %v\n", refreshErr)
-			return
-		}
-
-		// Update config with new session cookie
-		config.DefinedSessionCookie = newSessionCookie
-
-		// Invalidate token cache to force new JWT generation
-		InvalidateTokenCache()
-
-		// Retry getting JWT token
-		jwtToken, err = GetDefinedJWTToken(config.DefinedSessionCookie)
-		if err != nil {
-			fmt.Printf("[CODEX-REST][%s] Failed to get JWT token after refresh: %v\n", timestamp, err)
-			return
-		}
+		return
 	}
 
 	authErrorCount := 0
@@ -189,48 +176,12 @@ func performCodexRESTChecks(config *Config) {
 		)
 
 		if err != nil {
-			// Check if it's an auth error and we haven't refreshed yet this round
+			// Check if it's an auth error
 			if err.Error() == "authentication error: User is not authenticated" && authErrorCount == 0 {
 				authErrorCount++
-				fmt.Println("[CODEX-REST] Authentication error detected, attempting to refresh session...")
-
-				// Try to refresh session cookie
-				newSessionCookie, refreshErr := RefreshSessionCookie()
-				if refreshErr != nil {
-					fmt.Printf("[CODEX-REST] Failed to refresh session cookie: %v\n", refreshErr)
-				} else {
-					// Update config with new session cookie
-					config.DefinedSessionCookie = newSessionCookie
-
-					// Invalidate token cache to force new JWT generation
-					InvalidateTokenCache()
-
-					// Get new JWT token
-					newJwtToken, jwtErr := GetDefinedJWTToken(config.DefinedSessionCookie)
-					if jwtErr != nil {
-						fmt.Printf("[CODEX-REST] Failed to get new JWT token: %v\n", jwtErr)
-					} else {
-						jwtToken = newJwtToken
-						fmt.Println("[CODEX-REST] Session refreshed successfully, retrying requests...")
-
-						// Retry this chain with new token
-						latencyMs, statusCode, err = callCodexGraphQLAPI(
-							jwtToken,
-							chain.poolAddress,
-							chain.networkID,
-							chain.chainName,
-						)
-
-						// If still error, continue to error handling below
-						if err == nil {
-							// Success! Record and continue to next chain
-							RecordRESTLatency("codex", "graphql", chain.chainName, latencyMs, statusCode)
-							fmt.Printf("[CODEX-REST][%s][%s] ✓ | Latency: %.0fms | Status: %d (after refresh)\n",
-								timestamp, chain.chainName, latencyMs, statusCode)
-							continue
-						}
-					}
-				}
+				fmt.Println("[CODEX-REST] Authentication error - JWT token may be expired")
+				InvalidateTokenCache()
+				fmt.Println("[CODEX-REST] Token cache invalidated, will get new token on next cycle")
 			}
 
 			// Record error
