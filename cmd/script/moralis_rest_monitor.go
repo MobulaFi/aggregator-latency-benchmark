@@ -156,8 +156,8 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 	if pool.IsEVM {
 		q.Add("chain", pool.ChainID)
 	}
-	q.Add("to_date", toDate.Unix()) // Unix timestamp
-	q.Add("from_date", fromDate.Unix())
+	q.Add("to_date", fmt.Sprintf("%d", toDate.Unix()))
+	q.Add("from_date", fmt.Sprintf("%d", fromDate.Unix()))
 	q.Add("timeframe", "1m")
 	httpReq.URL.RawQuery = q.Encode()
 
