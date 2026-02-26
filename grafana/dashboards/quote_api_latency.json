@@ -211,7 +211,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket[1m])) by (le, provider, chain))",
-          "legendFormat": "{{provider}} - {{chain}} (P50)",
+          "legendFormat": "{{provider}} - {{chain}} - {{region}} (P50)",
           "range": true,
           "refId": "A"
         }
@@ -287,7 +287,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket[5m])) by (le, provider))",
-          "legendFormat": "{{provider}}",
+          "legendFormat": "{{provider}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -418,7 +418,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket{chain=\"solana\"}[1m])) by (le, provider))",
-          "legendFormat": "{{provider}} (P50)",
+          "legendFormat": "{{provider}} - {{region}} (P50)",
           "range": true,
           "refId": "A"
         }
@@ -535,7 +535,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket{chain=\"base\"}[1m])) by (le, provider))",
-          "legendFormat": "{{provider}} (P50)",
+          "legendFormat": "{{provider}} - {{region}} (P50)",
           "range": true,
           "refId": "A"
         }
@@ -652,7 +652,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket{chain=\"arbitrum\"}[1m])) by (le, provider))",
-          "legendFormat": "{{provider}} (P50)",
+          "legendFormat": "{{provider}} - {{region}} (P50)",
           "range": true,
           "refId": "A"
         }
@@ -753,7 +753,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket{chain=\"ethereum\"}[1m])) by (le, provider))",
-          "legendFormat": "{{provider}} (P50)",
+          "legendFormat": "{{provider}} - {{region}} (P50)",
           "range": true,
           "refId": "A"
         }
@@ -848,7 +848,7 @@
           },
           "editorMode": "code",
           "expr": "sum(increase(quote_api_errors_total[5m])) by (provider, chain)",
-          "legendFormat": "{{provider}} - {{chain}}",
+          "legendFormat": "{{provider}} - {{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -921,7 +921,7 @@
           },
           "editorMode": "code",
           "expr": "100 * sum(rate(quote_api_status_codes_total{status_code=\"200\"}[5m])) by (provider) / sum(rate(quote_api_status_codes_total[5m])) by (provider)",
-          "legendFormat": "{{provider}}",
+          "legendFormat": "{{provider}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -1020,7 +1020,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(quote_api_latency_milliseconds_bucket{provider=\"mobula\"}[1m])) by (le, chain))",
-          "legendFormat": "Mobula - {{chain}} (P50)",
+          "legendFormat": "Mobula - {{chain}} - {{region}} (P50)",
           "range": true,
           "refId": "A"
         },
@@ -1031,7 +1031,7 @@
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.95, sum(rate(quote_api_latency_milliseconds_bucket{provider=\"mobula\"}[1m])) by (le, chain))",
-          "legendFormat": "Mobula - {{chain}} (P95)",
+          "legendFormat": "Mobula - {{chain}} - {{region}} (P95)",
           "range": true,
           "refId": "B"
         }
