@@ -6,9 +6,8 @@ scrape_configs:
   - job_name: 'monitor'
     static_configs:
       - targets:
+        - 'agg-eu-west.railway.internal:2112'
+        - 'alert-reflection.railway.internal:2112'
         - 'aggregator-latency-benchmark.railway.internal:2112'
-        - 'monitor-us-west.railway.internal:2112'
-        - 'monitor-europe.railway.internal:2112'
-        - 'monitor-singapore.railway.internal:2112'
     metrics_path: /metrics
 
