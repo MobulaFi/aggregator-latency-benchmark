@@ -185,7 +185,7 @@
           },
           "editorMode": "code",
           "expr": "head_lag_milliseconds",
-          "legendFormat": "{{aggregator}} - {{chain}}",
+          "legendFormat": "{{aggregator}} - {{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -358,7 +358,7 @@
           },
           "editorMode": "code",
           "expr": "head_lag_seconds",
-          "legendFormat": "{{aggregator}} - {{chain}}",
+          "legendFormat": "{{aggregator}} - {{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -434,7 +434,7 @@
           },
           "editorMode": "code",
           "expr": "head_lag_seconds{aggregator=\"mobula\"}",
-          "legendFormat": "{{chain}}",
+          "legendFormat": "{{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -509,7 +509,7 @@
           },
           "editorMode": "code",
           "expr": "head_lag_seconds{aggregator=\"codex\"}",
-          "legendFormat": "{{chain}}",
+          "legendFormat": "{{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -584,7 +584,7 @@
           },
           "editorMode": "code",
           "expr": "head_lag_seconds{aggregator=\"geckoterminal\"}",
-          "legendFormat": "{{chain}}",
+          "legendFormat": "{{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
@@ -659,7 +659,7 @@
           },
           "editorMode": "code",
           "expr": "head_lag_seconds{aggregator=\"moralis\"}",
-          "legendFormat": "{{chain}}",
+          "legendFormat": "{{chain}} - {{region}}",
           "range": true,
           "refId": "A"
         }
