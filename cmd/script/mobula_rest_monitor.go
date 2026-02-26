@@ -148,7 +148,7 @@ func performMobulaRESTChecks(config *Config) {
 				errorType = "timeout_error"
 			}
 
-			RecordRESTError("mobula", "market_data", chain.chainName, errorType)
+			RecordRESTError("mobula", "market_data", chain.chainName, errorType, config.MonitorRegion)
 
 			fmt.Printf("[MOBULA-REST][%s][%s] ERROR | Latency: %.0fms | Status: %d | Error: %v\n",
 				timestamp,
@@ -161,7 +161,7 @@ func performMobulaRESTChecks(config *Config) {
 		}
 
 		// Record successful latency measurement
-		RecordRESTLatency("mobula", "market_data", chain.chainName, latencyMs, statusCode)
+		RecordRESTLatency("mobula", "market_data", chain.chainName, latencyMs, statusCode, config.MonitorRegion)
 
 		// Log the result
 		statusEmoji := "✓"

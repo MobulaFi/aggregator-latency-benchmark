@@ -194,7 +194,7 @@ func performCodexRESTChecks(config *Config) {
 				errorType = "timeout_error"
 			}
 
-			RecordRESTError("codex", "graphql", chain.chainName, errorType)
+			RecordRESTError("codex", "graphql", chain.chainName, errorType, config.MonitorRegion)
 
 			fmt.Printf("[CODEX-REST][%s][%s] ERROR | Latency: %.0fms | Status: %d | Error: %v\n",
 				timestamp,
@@ -207,7 +207,7 @@ func performCodexRESTChecks(config *Config) {
 		}
 
 		// Record successful latency measurement
-		RecordRESTLatency("codex", "graphql", chain.chainName, latencyMs, statusCode)
+		RecordRESTLatency("codex", "graphql", chain.chainName, latencyMs, statusCode, config.MonitorRegion)
 
 		// Log the result
 		statusEmoji := "✓"

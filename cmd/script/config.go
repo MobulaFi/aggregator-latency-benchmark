@@ -11,6 +11,7 @@ type Config struct {
 	CoinGeckoAPIKey       string
 	MobulaAPIKey          string
 	DefinedSessionCookie  string
+	MonitorRegion         string // Deployment region: us-west, us-east, singapore, etc.
 }
 
 func loadEnv() (*Config, error) {
@@ -20,6 +21,12 @@ func loadEnv() (*Config, error) {
 	config.CoinGeckoAPIKey = strings.TrimSpace(os.Getenv("COINGECKO_API_KEY"))
 	config.MobulaAPIKey = strings.TrimSpace(os.Getenv("MOBULA_API_KEY"))
 	config.DefinedSessionCookie = strings.TrimSpace(os.Getenv("DEFINED_SESSION_COOKIE"))
+	config.MonitorRegion = strings.TrimSpace(os.Getenv("MONITOR_REGION"))
+
+	// Default to "unknown" if not set
+	if config.MonitorRegion == "" {
+		config.MonitorRegion = "unknown"
+	}
 
 	// If all env vars are set, return early (production mode)
 	if config.CoinGeckoAPIKey != "" || config.MobulaAPIKey != "" || config.DefinedSessionCookie != "" {

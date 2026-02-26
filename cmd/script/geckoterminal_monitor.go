@@ -96,7 +96,7 @@ func runGeckoTerminalHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg
 			fmt.Println("[HEAD-LAG][GECKO] Monitor stopped")
 			return
 		default:
-			err := connectAndMonitorGecko(stopChan)
+			err := connectAndMonitorGecko(config, stopChan)
 			if err != nil {
 				log.Printf("[HEAD-LAG][GECKO] Connection error: %v. Reconnecting in %v...", err, reconnectDelay)
 
@@ -116,7 +116,7 @@ func runGeckoTerminalHeadLagMonitor(config *Config, stopChan <-chan struct{}, wg
 	}
 }
 
-func connectAndMonitorGecko(stopChan <-chan struct{}) error {
+func connectAndMonitorGecko(config *Config, stopChan <-chan struct{}) error {
 	headers := map[string][]string{
 		"Origin":     {geckoOrigin},
 		"User-Agent": {geckoUserAgent},
@@ -140,7 +140,7 @@ func connectAndMonitorGecko(stopChan <-chan struct{}) error {
 				return
 			}
 
-			handleGeckoMessage(conn, message)
+			handleGeckoMessage(config, conn, message)
 		}
 	}()
 
@@ -173,7 +173,7 @@ func connectAndMonitorGecko(stopChan <-chan struct{}) error {
 	}
 }
 
-func handleGeckoMessage(conn *websocket.Conn, message []byte) {
+func handleGeckoMessage(config *Config, conn *websocket.Conn, message []byte) {
 	var msg GeckoActionCableMessage
 	if err := json.Unmarshal(message, &msg); err != nil {
 		return
@@ -199,12 +199,12 @@ func handleGeckoMessage(conn *websocket.Conn, message []byte) {
 	default:
 		// Handle data messages
 		if msg.Message != nil {
-			handleGeckoDataMessage(msg.Identifier, msg.Message)
+			handleGeckoDataMessage(config, msg.Identifier, msg.Message)
 		}
 	}
 }
 
-func handleGeckoDataMessage(identifier string, message json.RawMessage) {
+func handleGeckoDataMessage(config *Config, identifier string, message json.RawMessage) {
 	// Parse swap data
 	var swapData GeckoSwapData
 	if err := json.Unmarshal(message, &swapData); err != nil {
@@ -241,7 +241,7 @@ func handleGeckoDataMessage(identifier string, message json.RawMessage) {
 	lagSeconds := float64(lagMs) / 1000.0
 
 	// Record metrics
-	RecordHeadLag("geckoterminal", poolChain, lagMs, lagSeconds)
+	RecordHeadLag("geckoterminal", poolChain, lagMs, lagSeconds, config.MonitorRegion)
 
 	// Log occasionally (not every trade)
 	if lagMs > 10000 || time.Now().Second()%30 == 0 {

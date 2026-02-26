@@ -354,11 +354,11 @@ func performQuoteAPIChecks(config *Config) {
 		config.MobulaAPIKey,
 	)
 	if err != nil || statusCode >= 400 {
-		RecordQuoteAPIError("mobula", "solana", getErrorType(statusCode))
+		RecordQuoteAPIError("mobula", "solana", getErrorType(statusCode), config.MonitorRegion)
 		fmt.Printf("[QUOTE-API][%s][mobula][solana] %s | Latency: %.0fms | Status: %d\n",
 			timestamp, getStatusEmoji(statusCode), latencyMs, statusCode)
 	} else {
-		RecordQuoteAPILatency("mobula", "solana", latencyMs, statusCode)
+		RecordQuoteAPILatency("mobula", "solana", latencyMs, statusCode, config.MonitorRegion)
 		fmt.Printf("[QUOTE-API][%s][mobula][solana] %s | Latency: %.0fms | Status: %d\n",
 			timestamp, getStatusEmoji(statusCode), latencyMs, statusCode)
 	}
@@ -366,11 +366,11 @@ func performQuoteAPIChecks(config *Config) {
 	// Jupiter (Solana only - FREE public API)
 	latencyMs, statusCode, err = callJupiterPublicQuoteAPI()
 	if err != nil || statusCode >= 400 {
-		RecordQuoteAPIError("jupiter", "solana", getErrorType(statusCode))
+		RecordQuoteAPIError("jupiter", "solana", getErrorType(statusCode), config.MonitorRegion)
 		fmt.Printf("[QUOTE-API][%s][jupiter][solana] %s | Latency: %.0fms | Status: %d\n",
 			timestamp, getStatusEmoji(statusCode), latencyMs, statusCode)
 	} else {
-		RecordQuoteAPILatency("jupiter", "solana", latencyMs, statusCode)
+		RecordQuoteAPILatency("jupiter", "solana", latencyMs, statusCode, config.MonitorRegion)
 		fmt.Printf("[QUOTE-API][%s][jupiter][solana] %s | Latency: %.0fms | Status: %d\n",
 			timestamp, getStatusEmoji(statusCode), latencyMs, statusCode)
 	}
@@ -390,11 +390,11 @@ func performQuoteAPIChecks(config *Config) {
 				config.MobulaAPIKey,
 			)
 			if err != nil || statusCode >= 400 {
-				RecordQuoteAPIError("mobula", chain.Name, getErrorType(statusCode))
+				RecordQuoteAPIError("mobula", chain.Name, getErrorType(statusCode), config.MonitorRegion)
 				fmt.Printf("[QUOTE-API][%s][mobula][%s] %s | Latency: %.0fms | Status: %d\n",
 					timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 			} else {
-				RecordQuoteAPILatency("mobula", chain.Name, latencyMs, statusCode)
+				RecordQuoteAPILatency("mobula", chain.Name, latencyMs, statusCode, config.MonitorRegion)
 				fmt.Printf("[QUOTE-API][%s][mobula][%s] %s | Latency: %.0fms | Status: %d\n",
 					timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 			}
@@ -403,11 +403,11 @@ func performQuoteAPIChecks(config *Config) {
 		// OpenOcean (FREE)
 		latencyMs, statusCode, err := callOpenOceanQuoteAPI(chain)
 		if err != nil || statusCode >= 400 {
-			RecordQuoteAPIError("openocean", chain.Name, getErrorType(statusCode))
+			RecordQuoteAPIError("openocean", chain.Name, getErrorType(statusCode), config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][openocean][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		} else {
-			RecordQuoteAPILatency("openocean", chain.Name, latencyMs, statusCode)
+			RecordQuoteAPILatency("openocean", chain.Name, latencyMs, statusCode, config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][openocean][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		}
@@ -415,11 +415,11 @@ func performQuoteAPIChecks(config *Config) {
 		// ParaSwap (FREE)
 		latencyMs, statusCode, err = callParaSwapQuoteAPI(chain)
 		if err != nil || statusCode >= 400 {
-			RecordQuoteAPIError("paraswap", chain.Name, getErrorType(statusCode))
+			RecordQuoteAPIError("paraswap", chain.Name, getErrorType(statusCode), config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][paraswap][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		} else {
-			RecordQuoteAPILatency("paraswap", chain.Name, latencyMs, statusCode)
+			RecordQuoteAPILatency("paraswap", chain.Name, latencyMs, statusCode, config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][paraswap][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		}
@@ -427,11 +427,11 @@ func performQuoteAPIChecks(config *Config) {
 		// Li.Fi (FREE)
 		latencyMs, statusCode, err = callLifiQuoteAPI(chain)
 		if err != nil || statusCode >= 400 {
-			RecordQuoteAPIError("lifi", chain.Name, getErrorType(statusCode))
+			RecordQuoteAPIError("lifi", chain.Name, getErrorType(statusCode), config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][lifi][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		} else {
-			RecordQuoteAPILatency("lifi", chain.Name, latencyMs, statusCode)
+			RecordQuoteAPILatency("lifi", chain.Name, latencyMs, statusCode, config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][lifi][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		}
@@ -439,11 +439,11 @@ func performQuoteAPIChecks(config *Config) {
 		// KyberSwap (FREE)
 		latencyMs, statusCode, err = callKyberSwapQuoteAPI(chain)
 		if err != nil || statusCode >= 400 {
-			RecordQuoteAPIError("kyberswap", chain.Name, getErrorType(statusCode))
+			RecordQuoteAPIError("kyberswap", chain.Name, getErrorType(statusCode), config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][kyberswap][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		} else {
-			RecordQuoteAPILatency("kyberswap", chain.Name, latencyMs, statusCode)
+			RecordQuoteAPILatency("kyberswap", chain.Name, latencyMs, statusCode, config.MonitorRegion)
 			fmt.Printf("[QUOTE-API][%s][kyberswap][%s] %s | Latency: %.0fms | Status: %d\n",
 				timestamp, chain.Name, getStatusEmoji(statusCode), latencyMs, statusCode)
 		}

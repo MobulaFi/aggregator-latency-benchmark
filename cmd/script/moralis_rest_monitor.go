@@ -101,7 +101,7 @@ func runMoralisRESTMonitor(config *Config, stopChan <-chan struct{}, wg *sync.Wa
 			fmt.Println("[HEAD-LAG][MORALIS-REST] Monitor stopped")
 			return
 		case req := <-moralisCheckQueue:
-			checkMoralisForTrade(req)
+			checkMoralisForTrade(config, req)
 		}
 	}
 }
@@ -128,7 +128,7 @@ func TriggerMoralisCheck(pairAddress string, onChainTime time.Time, txHash strin
 	}
 }
 
-func checkMoralisForTrade(req TradeCheckRequest) {
+func checkMoralisForTrade(config *Config, req TradeCheckRequest) {
 	pool, exists := moralisPairMapping[req.PairAddress]
 	if !exists {
 		return
@@ -148,7 +148,7 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 
 	httpReq, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		RecordHeadLagError("moralis", pool.Chain, "request_creation_failed")
+		RecordHeadLagError("moralis", pool.Chain, "request_creation_failed", config.MonitorRegion)
 		return
 	}
 
@@ -169,32 +169,32 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 	checkTime := time.Now()
 	resp, err := moralisHttpClient.Do(httpReq)
 	if err != nil {
-		RecordHeadLagError("moralis", pool.Chain, "request_failed")
+		RecordHeadLagError("moralis", pool.Chain, "request_failed", config.MonitorRegion)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		RecordHeadLagError("moralis", pool.Chain, fmt.Sprintf("http_%d", resp.StatusCode))
+		RecordHeadLagError("moralis", pool.Chain, fmt.Sprintf("http_%d", resp.StatusCode), config.MonitorRegion)
 		return
 	}
 
 	// Parse response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		RecordHeadLagError("moralis", pool.Chain, "read_body_failed")
+		RecordHeadLagError("moralis", pool.Chain, "read_body_failed", config.MonitorRegion)
 		return
 	}
 
 	var data MoralisOHLCVResponse
 	if err := json.Unmarshal(body, &data); err != nil {
-		RecordHeadLagError("moralis", pool.Chain, "json_parse_failed")
+		RecordHeadLagError("moralis", pool.Chain, "json_parse_failed", config.MonitorRegion)
 		return
 	}
 
 	if len(data.Result) == 0 {
 		// No data yet - trade not indexed
-		RecordHeadLagError("moralis", pool.Chain, "trade_not_found")
+		RecordHeadLagError("moralis", pool.Chain, "trade_not_found", config.MonitorRegion)
 		return
 	}
 
@@ -217,7 +217,7 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 			lagSeconds := float64(lagMs) / 1000.0
 
 			// Record metrics
-			RecordHeadLag("moralis", pool.Chain, lagMs, lagSeconds)
+			RecordHeadLag("moralis", pool.Chain, lagMs, lagSeconds, config.MonitorRegion)
 
 			// Log
 			fmt.Printf("[HEAD-LAG][MORALIS][%s][%s] Trade found! Lag: %.2fs | Tx: %s | Candle: %s\n",
@@ -230,6 +230,6 @@ func checkMoralisForTrade(req TradeCheckRequest) {
 
 	if !found {
 		// Trade happened but not in any candle yet
-		RecordHeadLagError("moralis", pool.Chain, "trade_not_in_candles")
+		RecordHeadLagError("moralis", pool.Chain, "trade_not_in_candles", config.MonitorRegion)
 	}
 }

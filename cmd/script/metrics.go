@@ -42,7 +42,7 @@ func init() {
 			Name: "pool_discovery_latency_milliseconds",
 			Help: "Time from pool creation on-chain to first trade detection (pool discovery latency)",
 		},
-		[]string{"aggregator", "chain"},
+		[]string{"aggregator", "chain", "region"},
 	)
 	prometheus.MustRegister(poolDiscoveryLatency)
 
@@ -51,7 +51,7 @@ func init() {
 			Name: "pool_discovery_errors_total",
 			Help: "Total number of errors when fetching pool discovery data",
 		},
-		[]string{"aggregator", "error_type"},
+		[]string{"aggregator", "error_type", "region"},
 	)
 	prometheus.MustRegister(poolDiscoveryErrors)
 
@@ -62,7 +62,7 @@ func init() {
 			Help:    "REST API response latency in milliseconds",
 			Buckets: []float64{50, 100, 200, 500, 1000, 2000, 5000, 10000},
 		},
-		[]string{"aggregator", "endpoint", "chain"},
+		[]string{"aggregator", "endpoint", "chain", "region"},
 	)
 	prometheus.MustRegister(restAPILatency)
 
@@ -72,7 +72,7 @@ func init() {
 			Name: "rest_api_errors_total",
 			Help: "Total number of REST API errors",
 		},
-		[]string{"aggregator", "endpoint", "chain", "error_type"},
+		[]string{"aggregator", "endpoint", "chain", "error_type", "region"},
 	)
 	prometheus.MustRegister(restAPIErrors)
 
@@ -82,7 +82,7 @@ func init() {
 			Name: "rest_api_status_codes_total",
 			Help: "Total count of REST API responses by status code",
 		},
-		[]string{"aggregator", "endpoint", "chain", "status_code"},
+		[]string{"aggregator", "endpoint", "chain", "status_code", "region"},
 	)
 	prometheus.MustRegister(restAPIStatusCodes)
 
@@ -93,7 +93,7 @@ func init() {
 			Help:    "Quote API response latency in milliseconds",
 			Buckets: []float64{50, 100, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000},
 		},
-		[]string{"provider", "chain"},
+		[]string{"provider", "chain", "region"},
 	)
 	prometheus.MustRegister(quoteAPILatency)
 
@@ -103,7 +103,7 @@ func init() {
 			Name: "quote_api_errors_total",
 			Help: "Total number of Quote API errors",
 		},
-		[]string{"provider", "chain", "error_type"},
+		[]string{"provider", "chain", "error_type", "region"},
 	)
 	prometheus.MustRegister(quoteAPIErrors)
 
@@ -113,7 +113,7 @@ func init() {
 			Name: "quote_api_status_codes_total",
 			Help: "Total count of Quote API responses by status code",
 		},
-		[]string{"provider", "chain", "status_code"},
+		[]string{"provider", "chain", "status_code", "region"},
 	)
 	prometheus.MustRegister(quoteAPIStatusCodes)
 
@@ -123,7 +123,7 @@ func init() {
 			Name: "metadata_coverage_checks_total",
 			Help: "Total number of metadata coverage checks",
 		},
-		[]string{"provider", "chain", "field"},
+		[]string{"provider", "chain", "field", "region"},
 	)
 	prometheus.MustRegister(metadataCoverageTotal)
 
@@ -133,7 +133,7 @@ func init() {
 			Name: "metadata_coverage_success_total",
 			Help: "Total number of successful metadata coverage checks (field present)",
 		},
-		[]string{"provider", "chain", "field"},
+		[]string{"provider", "chain", "field", "region"},
 	)
 	prometheus.MustRegister(metadataCoverageSuccess)
 
@@ -144,7 +144,7 @@ func init() {
 			Help:    "Metadata API response latency in milliseconds",
 			Buckets: []float64{50, 100, 200, 500, 1000, 2000, 5000, 10000},
 		},
-		[]string{"provider", "chain"},
+		[]string{"provider", "chain", "region"},
 	)
 	prometheus.MustRegister(metadataAPILatency)
 
@@ -154,7 +154,7 @@ func init() {
 			Name: "head_lag_milliseconds",
 			Help: "Indexation latency in milliseconds (time between on-chain event and WebSocket receipt)",
 		},
-		[]string{"aggregator", "chain"},
+		[]string{"aggregator", "chain", "region"},
 	)
 	prometheus.MustRegister(headLagBlocks)
 
@@ -164,7 +164,7 @@ func init() {
 			Name: "head_lag_seconds",
 			Help: "Indexation latency in seconds (time between on-chain event and WebSocket receipt)",
 		},
-		[]string{"aggregator", "chain"},
+		[]string{"aggregator", "chain", "region"},
 	)
 	prometheus.MustRegister(headLagSeconds)
 
@@ -174,7 +174,7 @@ func init() {
 			Name: "blockchain_head_block",
 			Help: "Latest block number on the blockchain (source of truth)",
 		},
-		[]string{"chain"},
+		[]string{"chain", "region"},
 	)
 	prometheus.MustRegister(blockchainHead)
 
@@ -184,7 +184,7 @@ func init() {
 			Name: "aggregator_head_block",
 			Help: "Latest block number indexed by the aggregator",
 		},
-		[]string{"aggregator", "chain"},
+		[]string{"aggregator", "chain", "region"},
 	)
 	prometheus.MustRegister(aggregatorHead)
 
@@ -194,90 +194,90 @@ func init() {
 			Name: "head_lag_errors_total",
 			Help: "Total number of errors when fetching head lag data",
 		},
-		[]string{"aggregator", "chain", "error_type"},
+		[]string{"aggregator", "chain", "error_type", "region"},
 	)
 	prometheus.MustRegister(headLagErrors)
 }
 
-func RecordPoolDiscoveryLatency(aggregator string, chain string, latencyMs float64) {
+func RecordPoolDiscoveryLatency(aggregator string, chain string, latencyMs float64, region string) {
 	// Filter out invalid values: negative or > 2 minutes (120000ms)
 	if latencyMs < 0 || latencyMs > 120000 {
 		return
 	}
 
-	poolDiscoveryLatency.WithLabelValues(aggregator, chain).Set(latencyMs)
+	poolDiscoveryLatency.WithLabelValues(aggregator, chain, region).Set(latencyMs)
 }
 
 // RecordPoolDiscoveryError records an error when fetching pool discovery data
-func RecordPoolDiscoveryError(aggregator string, errorType string) {
-	poolDiscoveryErrors.WithLabelValues(aggregator, errorType).Inc()
+func RecordPoolDiscoveryError(aggregator string, errorType string, region string) {
+	poolDiscoveryErrors.WithLabelValues(aggregator, errorType, region).Inc()
 }
 
 // RecordRESTLatency records the latency of a REST API call
-func RecordRESTLatency(aggregator string, endpoint string, chain string, latencyMs float64, statusCode int) {
+func RecordRESTLatency(aggregator string, endpoint string, chain string, latencyMs float64, statusCode int, region string) {
 	// Record latency in histogram
-	restAPILatency.WithLabelValues(aggregator, endpoint, chain).Observe(latencyMs)
+	restAPILatency.WithLabelValues(aggregator, endpoint, chain, region).Observe(latencyMs)
 
 	// Record status code
-	restAPIStatusCodes.WithLabelValues(aggregator, endpoint, chain, fmt.Sprintf("%d", statusCode)).Inc()
+	restAPIStatusCodes.WithLabelValues(aggregator, endpoint, chain, fmt.Sprintf("%d", statusCode), region).Inc()
 }
 
 // RecordRESTError records a REST API error
-func RecordRESTError(aggregator string, endpoint string, chain string, errorType string) {
-	restAPIErrors.WithLabelValues(aggregator, endpoint, chain, errorType).Inc()
+func RecordRESTError(aggregator string, endpoint string, chain string, errorType string, region string) {
+	restAPIErrors.WithLabelValues(aggregator, endpoint, chain, errorType, region).Inc()
 }
 
 // RecordQuoteAPILatency records the latency of a Quote API call
-func RecordQuoteAPILatency(provider string, chain string, latencyMs float64, statusCode int) {
+func RecordQuoteAPILatency(provider string, chain string, latencyMs float64, statusCode int, region string) {
 	// Record latency in histogram
-	quoteAPILatency.WithLabelValues(provider, chain).Observe(latencyMs)
+	quoteAPILatency.WithLabelValues(provider, chain, region).Observe(latencyMs)
 
 	// Record status code
-	quoteAPIStatusCodes.WithLabelValues(provider, chain, fmt.Sprintf("%d", statusCode)).Inc()
+	quoteAPIStatusCodes.WithLabelValues(provider, chain, fmt.Sprintf("%d", statusCode), region).Inc()
 }
 
 // RecordQuoteAPIError records a Quote API error
-func RecordQuoteAPIError(provider string, chain string, errorType string) {
-	quoteAPIErrors.WithLabelValues(provider, chain, errorType).Inc()
+func RecordQuoteAPIError(provider string, chain string, errorType string, region string) {
+	quoteAPIErrors.WithLabelValues(provider, chain, errorType, region).Inc()
 }
 
 // RecordMetadataCoverage records metadata coverage for a specific field
-func RecordMetadataCoverage(provider string, chain string, field string, present bool) {
-	metadataCoverageTotal.WithLabelValues(provider, chain, field).Inc()
+func RecordMetadataCoverage(provider string, chain string, field string, present bool, region string) {
+	metadataCoverageTotal.WithLabelValues(provider, chain, field, region).Inc()
 	if present {
-		metadataCoverageSuccess.WithLabelValues(provider, chain, field).Inc()
+		metadataCoverageSuccess.WithLabelValues(provider, chain, field, region).Inc()
 	}
 }
 
 // RecordMetadataLatency records the latency of a metadata API call
-func RecordMetadataLatency(provider string, chain string, latencyMs float64) {
-	metadataAPILatency.WithLabelValues(provider, chain).Observe(latencyMs)
+func RecordMetadataLatency(provider string, chain string, latencyMs float64, region string) {
+	metadataAPILatency.WithLabelValues(provider, chain, region).Observe(latencyMs)
 }
 
 // RecordHeadLag records the head lag for an aggregator on a specific chain
-func RecordHeadLag(aggregator string, chain string, lagBlocks int64, lagSeconds float64) {
-	headLagBlocks.WithLabelValues(aggregator, chain).Set(float64(lagBlocks))
-	headLagSeconds.WithLabelValues(aggregator, chain).Set(lagSeconds)
+func RecordHeadLag(aggregator string, chain string, lagBlocks int64, lagSeconds float64, region string) {
+	headLagBlocks.WithLabelValues(aggregator, chain, region).Set(float64(lagBlocks))
+	headLagSeconds.WithLabelValues(aggregator, chain, region).Set(lagSeconds)
 }
 
 // RecordBlockchainHead records the current blockchain head block number
-func RecordBlockchainHead(chain string, blockNumber int64) {
-	blockchainHead.WithLabelValues(chain).Set(float64(blockNumber))
+func RecordBlockchainHead(chain string, blockNumber int64, region string) {
+	blockchainHead.WithLabelValues(chain, region).Set(float64(blockNumber))
 }
 
 // RecordAggregatorHead records the aggregator's indexed head block number
-func RecordAggregatorHead(aggregator string, chain string, blockNumber int64) {
-	aggregatorHead.WithLabelValues(aggregator, chain).Set(float64(blockNumber))
+func RecordAggregatorHead(aggregator string, chain string, blockNumber int64, region string) {
+	aggregatorHead.WithLabelValues(aggregator, chain, region).Set(float64(blockNumber))
 }
 
 // RecordHeadLagError records an error when fetching head lag data
-func RecordHeadLagError(aggregator string, chain string, errorType string) {
-	headLagErrors.WithLabelValues(aggregator, chain, errorType).Inc()
+func RecordHeadLagError(aggregator string, chain string, errorType string, region string) {
+	headLagErrors.WithLabelValues(aggregator, chain, errorType, region).Inc()
 }
 
 // RecordCodexBlockNumber records the block number from Codex events
-func RecordCodexBlockNumber(chain string, blockNumber int64) {
-	aggregatorHead.WithLabelValues("codex", chain).Set(float64(blockNumber))
+func RecordCodexBlockNumber(chain string, blockNumber int64, region string) {
+	aggregatorHead.WithLabelValues("codex", chain, region).Set(float64(blockNumber))
 }
 
 func StartMetricsServer(addr string) error {

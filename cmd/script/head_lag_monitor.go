@@ -201,7 +201,7 @@ func connectAndMonitorMobula(config *Config, stopChan <-chan struct{}) error {
 			chainName := getChainNameFromBlockchain(trade.Blockchain)
 
 			// Record metric
-			RecordHeadLag("mobula", chainName, lagMs, lagSeconds)
+			RecordHeadLag("mobula", chainName, lagMs, lagSeconds, config.MonitorRegion)
 
 			// Log occasionally (not every trade)
 			if lagMs > 5000 || time.Now().Second()%30 == 0 {
@@ -428,8 +428,8 @@ func connectAndMonitorCodex(config *Config, stopChan <-chan struct{}) error {
 				chainName := getChainNameFromNetworkID(networkID)
 
 				// Record metrics
-				RecordHeadLag("codex", chainName, lagMs, lagSeconds)
-				RecordCodexBlockNumber(chainName, event.BlockNumber)
+				RecordHeadLag("codex", chainName, lagMs, lagSeconds, config.MonitorRegion)
+				RecordCodexBlockNumber(chainName, event.BlockNumber, config.MonitorRegion)
 
 				// Log occasionally
 				if lagMs > 5000 || time.Now().Second()%30 == 0 {

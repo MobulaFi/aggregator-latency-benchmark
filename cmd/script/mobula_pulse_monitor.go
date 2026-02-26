@@ -228,7 +228,7 @@ func handlePulseV2Messages(conn *websocket.Conn, config *Config) {
 			fmt.Printf("   Launchpad: %s\n\n", source)
 
 			// Record pool discovery latency metric
-			RecordPoolDiscoveryLatency("mobula-pulse", chainName, float64(discoveryLagMs))
+			RecordPoolDiscoveryLatency("mobula-pulse", chainName, float64(discoveryLagMs), config.MonitorRegion)
 
 			// Queue token for metadata coverage check
 			QueueTokenForMetadataCheck(TokenToCheck{

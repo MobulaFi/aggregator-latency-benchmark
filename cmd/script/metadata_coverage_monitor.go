@@ -615,22 +615,22 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 	updateStats("mobula", mobulaResult)
 
 	// Record Prometheus metrics for Mobula
-	RecordMetadataCoverage("mobula", chainName, "logo", mobulaResult.HasLogo)
-	RecordMetadataCoverage("mobula", chainName, "description", mobulaResult.HasDescription)
-	RecordMetadataCoverage("mobula", chainName, "twitter", mobulaResult.HasTwitter)
-	RecordMetadataCoverage("mobula", chainName, "website", mobulaResult.HasWebsite)
-	RecordMetadataLatency("mobula", chainName, mobulaResult.ResponseTimeMs)
+	RecordMetadataCoverage("mobula", chainName, "logo", mobulaResult.HasLogo, config.MonitorRegion)
+	RecordMetadataCoverage("mobula", chainName, "description", mobulaResult.HasDescription, config.MonitorRegion)
+	RecordMetadataCoverage("mobula", chainName, "twitter", mobulaResult.HasTwitter, config.MonitorRegion)
+	RecordMetadataCoverage("mobula", chainName, "website", mobulaResult.HasWebsite, config.MonitorRegion)
+	RecordMetadataLatency("mobula", chainName, mobulaResult.ResponseTimeMs, config.MonitorRegion)
 
 	// Check Codex
 	codexResult := checkCodexMetadata(token, config.DefinedSessionCookie)
 	updateStats("codex", codexResult)
 
 	// Record Prometheus metrics for Codex
-	RecordMetadataCoverage("codex", chainName, "logo", codexResult.HasLogo)
-	RecordMetadataCoverage("codex", chainName, "description", codexResult.HasDescription)
-	RecordMetadataCoverage("codex", chainName, "twitter", codexResult.HasTwitter)
-	RecordMetadataCoverage("codex", chainName, "website", codexResult.HasWebsite)
-	RecordMetadataLatency("codex", chainName, codexResult.ResponseTimeMs)
+	RecordMetadataCoverage("codex", chainName, "logo", codexResult.HasLogo, config.MonitorRegion)
+	RecordMetadataCoverage("codex", chainName, "description", codexResult.HasDescription, config.MonitorRegion)
+	RecordMetadataCoverage("codex", chainName, "twitter", codexResult.HasTwitter, config.MonitorRegion)
+	RecordMetadataCoverage("codex", chainName, "website", codexResult.HasWebsite, config.MonitorRegion)
+	RecordMetadataLatency("codex", chainName, codexResult.ResponseTimeMs, config.MonitorRegion)
 
 	// Check Jupiter (Solana only - scraping frontend)
 	var jupiterResult MetadataFields
@@ -639,11 +639,11 @@ func checkTokenMetadata(token TokenToCheck, config *Config) {
 		updateStats("jupiter", jupiterResult)
 
 		// Record Prometheus metrics for Jupiter
-		RecordMetadataCoverage("jupiter", chainName, "logo", jupiterResult.HasLogo)
-		RecordMetadataCoverage("jupiter", chainName, "description", jupiterResult.HasDescription)
-		RecordMetadataCoverage("jupiter", chainName, "twitter", jupiterResult.HasTwitter)
-		RecordMetadataCoverage("jupiter", chainName, "website", jupiterResult.HasWebsite)
-		RecordMetadataLatency("jupiter", chainName, jupiterResult.ResponseTimeMs)
+		RecordMetadataCoverage("jupiter", chainName, "logo", jupiterResult.HasLogo, config.MonitorRegion)
+		RecordMetadataCoverage("jupiter", chainName, "description", jupiterResult.HasDescription, config.MonitorRegion)
+		RecordMetadataCoverage("jupiter", chainName, "twitter", jupiterResult.HasTwitter, config.MonitorRegion)
+		RecordMetadataCoverage("jupiter", chainName, "website", jupiterResult.HasWebsite, config.MonitorRegion)
+		RecordMetadataLatency("jupiter", chainName, jupiterResult.ResponseTimeMs, config.MonitorRegion)
 	}
 
 	// Single condensed log line
