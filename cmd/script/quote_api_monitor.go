@@ -87,18 +87,6 @@ var evmQuoteChains = []QuoteChainConfig{
 		Amount:         "100000000000000000000", // 100 USDC (18 decimals on BSC)
 		Decimals:       18,
 	},
-	{
-		Name:           "arbitrum",
-		ChainID:        "42161",
-		OpenOceanChain: "42161",
-		KyberChainKey:  "arbitrum",
-		TokenIn:        "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", // USDC on Arbitrum
-		TokenOut:       "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", // WETH on Arbitrum
-		TokenInSymbol:  "USDC",
-		TokenOutSymbol: "WETH",
-		Amount:         "100000000", // 100 USDC (6 decimals)
-		Decimals:       6,
-	},
 }
 
 // HTTP client with timeout
@@ -377,10 +365,10 @@ func performQuoteAPIChecks(config *Config) {
 
 	// ========== EVM QUOTES ==========
 
-	// Test EVM chains with FREE APIs: Mobula (Base + Arbitrum), OpenOcean, ParaSwap, Li.Fi, KyberSwap
+	// Test EVM chains with FREE APIs: Mobula (Base), OpenOcean, ParaSwap, Li.Fi, KyberSwap
 	for _, chain := range evmQuoteChains {
-		// Mobula (Base + Arbitrum - chains where MobulaRouter is deployed)
-		if chain.Name == "base" || chain.Name == "arbitrum" {
+		// Mobula (Base - chain where MobulaRouter is deployed)
+		if chain.Name == "base" {
 			latencyMs, statusCode, err := callMobulaSwapQuoteAPI(
 				"evm:"+chain.ChainID,
 				chain.Name,
@@ -481,9 +469,9 @@ func getStatusEmoji(statusCode int) string {
 func runQuoteAPIMonitor(config *Config, stopChan <-chan struct{}) {
 	fmt.Println("Starting Quote API Latency Monitor...")
 	fmt.Println("   Comparing: Mobula, Jupiter, OpenOcean, ParaSwap, Li.Fi, KyberSwap")
-	fmt.Println("   Mobula: Solana + Base + Arbitrum")
+	fmt.Println("   Mobula: Solana + Base")
 	fmt.Println("   Jupiter: Solana")
-	fmt.Println("   Others: Ethereum, Base, BNB, Arbitrum")
+	fmt.Println("   Others: Ethereum, Base, BNB")
 	fmt.Println("   Test: 100 USDC → Native token quote")
 	fmt.Println("   Interval: 30 seconds")
 	fmt.Println()

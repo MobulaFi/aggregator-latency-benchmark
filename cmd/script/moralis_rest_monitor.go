@@ -67,14 +67,6 @@ var moralisPairMapping = map[string]MoralisMonitorPool{
 		PairAddress: "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16",
 		IsEVM:       true,
 	},
-	// Arbitrum
-	"0xc6962004f452be9203591991d15f6b388e09e8d0": {
-		Name:        "WETH/USDC Arbitrum",
-		Chain:       "arbitrum",
-		ChainID:     "0xa4b1",
-		PairAddress: "0xc6962004f452be9203591991d15f6b388e09e8d0",
-		IsEVM:       true,
-	},
 }
 
 var (

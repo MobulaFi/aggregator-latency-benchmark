@@ -51,12 +51,6 @@ var geckoTerminalPools = []struct {
 		PoolID:  "24",
 		Chain:   "bnb",
 	},
-	{
-		Name:    "WETH/USDC Arbitrum",
-		Network: "arbitrum",
-		PoolID:  "162634438",
-		Chain:   "arbitrum",
-	},
 }
 
 // ActionCable message structures

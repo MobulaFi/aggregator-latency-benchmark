@@ -25,7 +25,6 @@ var codexRESTChains = []struct {
 	{1, "ethereum", "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"},           // WETH/USDC Uniswap V3
 	{8453, "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},            // WETH/USDC Base
 	{56, "bnb", "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16"},               // WBNB/BUSD PancakeSwap
-	{42161, "arbitrum", "0xc6962004f452be9203591991d15f6b388e09e8d0"},       // WETH/USDC Uniswap V3 Arbitrum
 }
 
 type CodexGraphQLRequest struct {

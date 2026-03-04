@@ -55,13 +55,6 @@ var headLagPools = []HeadLagPool{
 		Address:    "0x58f876857a02d6762e0101bb5c46a8c1ed44dc16",
 		ChainName:  "bnb",
 	},
-	{
-		Name:       "WETH/USDC Arbitrum",
-		Blockchain: "evm:42161",
-		NetworkID:  42161,
-		Address:    "0xc6962004f452be9203591991d15f6b388e09e8d0",
-		ChainName:  "arbitrum",
-	},
 }
 
 // ============================================================================
@@ -223,8 +216,6 @@ func getChainNameFromBlockchain(blockchain string) string {
 		return "base"
 	case "BNB Smart Chain (BEP20)", "BSC", "evm:56":
 		return "bnb"
-	case "Arbitrum", "evm:42161":
-		return "arbitrum"
 	default:
 		return blockchain
 	}
@@ -452,8 +443,6 @@ func getChainNameFromNetworkID(networkID int) string {
 		return "base"
 	case 56:
 		return "bnb"
-	case 42161:
-		return "arbitrum"
 	default:
 		return fmt.Sprintf("network_%d", networkID)
 	}
@@ -470,7 +459,7 @@ func runHeadLagMonitor(config *Config, stopChan <-chan struct{}) {
 	fmt.Println("╠══════════════════════════════════════════════════════════════╣")
 	fmt.Println("║  Measures: Time between on-chain event and WebSocket receipt ║")
 	fmt.Println("║  Providers: Mobula + Codex + GeckoTerminal                   ║")
-	fmt.Printf("║  Pools: %d high-activity pools across 5 chains               ║\n", len(headLagPools))
+	fmt.Printf("║  Pools: %d high-activity pools across 4 chains               ║\n", len(headLagPools))
 	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
 	fmt.Println()
 

@@ -24,7 +24,6 @@ var mobulaRESTChains = []struct {
 	{"Ethereum", "1", "ethereum", "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"},          // WETH/USDC Uniswap V3
 	{"Base", "8453", "base", "0x4c36388be6f416a29c8d8eee81c771ce6be14b18"},              // WETH/USDC Base
 	{"BSC", "56", "bnb", "0x58F876857a02D6762E0101bb5C46A8c1ED44Dc16"},                  // WBNB/BUSD PancakeSwap
-	{"Arbitrum", "42161", "arbitrum", "0xc6962004f452be9203591991d15f6b388e09e8d0"},     // WETH/USDC Arbitrum
 }
 
 type MobulaMarketDataResponse struct {
